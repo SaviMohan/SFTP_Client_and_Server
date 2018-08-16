@@ -120,7 +120,7 @@ public class Server {
 		    messageToClient = tcpServer.processIncomingMessage(receivedClientMessage);
 		    
 		    //tcpServer.outToClient.writeBytes(messageToClient); 
-		    tcpServer.sendMessageToClient(messageToClient);
+		    tcpServer.sendMessageToClient(messageToClient+"\0");
 	    } 
     } 
 

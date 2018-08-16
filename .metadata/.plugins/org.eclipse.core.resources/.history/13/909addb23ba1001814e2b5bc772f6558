@@ -117,7 +117,7 @@ public class Server {
 		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
 		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
-		    messageToClient = tcpServer.processIncomingMessage(receivedClientMessage);
+		    messageToClient = tcpServer.processIncomingMessage(receivedClientMessage)+'\0';
 		    
 		    //tcpServer.outToClient.writeBytes(messageToClient); 
 		    tcpServer.sendMessageToClient(messageToClient);

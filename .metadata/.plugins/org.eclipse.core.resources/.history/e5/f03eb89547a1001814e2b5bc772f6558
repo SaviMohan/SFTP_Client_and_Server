@@ -22,16 +22,7 @@ public class Client {
         	
             outToServer.writeBytes(messagetoServer + '\n'); 
             
-            //messageFromServer = inFromServer.readLine(); 
-            char c = 'a';
-            messageFromServer = ""; 
-            while(c != '\0') {
-            	c = (char) inFromServer.read();
-            	if (c != '\0') {
-            		messageFromServer += c;
-            	}
-            	
-            }
+            messageFromServer = inFromServer.readLine(); 
             
             System.out.println("FROM SERVER: " + messageFromServer); 
             

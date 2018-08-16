@@ -42,7 +42,7 @@ public class Server {
 	
 	private void sendMessageToClient(String message) {
 		try {
-			this.outToClient.writeBytes(message+'\0');
+			this.outToClient.writeBytes(message+"\0");
 		} catch (IOException e) {
 			System.out.println("Error sending message");
 		}		

@@ -42,7 +42,7 @@ public class Server {
 	
 	private void sendMessageToClient(String message) {
 		try {
-			this.outToClient.writeBytes(message+'\0');
+			this.outToClient.writeBytes(message);
 		} catch (IOException e) {
 			System.out.println("Error sending message");
 		}		
@@ -116,8 +116,8 @@ public class Server {
 		    receivedClientMessage = inFromClient.readLine();
 		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
-		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
-		    messageToClient = tcpServer.processIncomingMessage(receivedClientMessage);
+		    messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
+		    //messageToClient = tcpServer.processIncomingMessage(receivedClientMessage);
 		    
 		    //tcpServer.outToClient.writeBytes(messageToClient); 
 		    tcpServer.sendMessageToClient(messageToClient);

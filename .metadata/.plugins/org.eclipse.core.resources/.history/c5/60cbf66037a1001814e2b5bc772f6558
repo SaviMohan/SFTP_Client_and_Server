@@ -9,7 +9,6 @@ public class Server {
 	private static final String userFile = "src/SFTPServer/userdata.txt";
 	private static List<List<String>> userList;
 	private boolean clientLoggedIn = false;
-	private DataOutputStream  outToClient;
 	
 	public boolean isClientLoggedIn() {
 		return this.clientLoggedIn;
@@ -40,59 +39,7 @@ public class Server {
 		System.out.println(userList);
 	}
 	
-	private void sendMessageToClient(String message) {
-		try {
-			this.outToClient.writeBytes(message+'\0');
-		} catch (IOException e) {
-			System.out.println("Error sending message");
-		}		
-	}
 	
-	private String processIncomingMessage(String messageFromClient) {
-		if(messageFromClient.length() > 3) {
-			String command = messageFromClient.substring(0, 4).toUpperCase();
-			switch(command) {
-			case "USER":
-				//this.cmdUSER
-				break;
-			case "ACCT":
-				//
-				break;
-			case "PASS":
-				//
-				break;
-			case "TYPE":
-				//
-				break;
-			case "LIST":
-				//
-				break;
-			case "CDIR":
-				//
-				break;
-			case "KILL":
-				//
-				break;
-			case "NAME":
-				//
-				break;
-			case "DONE":
-				//
-				break;
-			case "RETR":
-				//
-				break;
-			case "STOR":
-				//
-				break;
-			default:
-				return "- Error: command not recognized";				
-			}
-		} else {
-			return "- Error: command not recognized";	
-		}
-		return "- Error: An error occurred while processing your command.";		
-	}
 
 	public static void main(String argv[]) throws Exception { 
 	String receivedClientMessage; 
@@ -104,7 +51,7 @@ public class Server {
 	
 	Socket connectionSocket = welcomeSocket.accept();
 	BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
-	tcpServer.outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
+    DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		while(true) { 
 		    
 	        //Socket connectionSocket = welcomeSocket.accept(); 
@@ -116,11 +63,10 @@ public class Server {
 		    receivedClientMessage = inFromClient.readLine();
 		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
-		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
-		    messageToClient = tcpServer.processIncomingMessage(receivedClientMessage);
+		    messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
+		    //messageToClient = server.process
 		    
-		    //tcpServer.outToClient.writeBytes(messageToClient); 
-		    tcpServer.sendMessageToClient(messageToClient);
+		    outToClient.writeBytes(messageToClient); 
 	    } 
     } 
 
