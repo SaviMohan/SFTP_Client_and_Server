@@ -95,25 +95,11 @@ public class Server {
 	}
 	
 	private void cmdUSER(String messageFromClient) {
-		String userid = messageFromClient.substring(5).trim();
-		for (List<String> user : userList) {
-		    if (user.get(0)==userid) {
-		    	if (user.get(1)=="" && user.get(2)=="") {
-		    		this.sendMessageToClient("!"+userid+" logged in");
-		    		this.setClientLoggedIn(true);
-		    		return;
-		    	} else {
-		    		this.sendMessageToClient("+User-id valid, send account and password");
-		    		return;
-		    	}
-		    	
-		    }
-		}
-		this.sendMessageToClient("-Invalid user-id, try again");		
+		
 	}
 	
 	private void cmdACCT(String messageFromClient) {
-		String account = messageFromClient.substring(5).trim();
+		
 	}
 	
 	private void cmdPASS(String messageFromClient) {
@@ -163,7 +149,6 @@ public class Server {
 	Socket connectionSocket = welcomeSocket.accept();
 	BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
 	tcpServer.outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
-	tcpServer.sendMessageToClient("+localhost SFTP Service");
 		while(true) { 
 		    
 	        //Socket connectionSocket = welcomeSocket.accept(); 

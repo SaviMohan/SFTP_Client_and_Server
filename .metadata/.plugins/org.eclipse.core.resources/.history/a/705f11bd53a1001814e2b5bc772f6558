@@ -2,25 +2,7 @@ package SFTPClient;
 import java.io.*; 
 import java.net.*; 
 public class Client {
-	BufferedReader inFromServer;
-	
-	private String receiveMessageFromServer() {
-		char c = 'a';
-        String message = ""; 
-        while(c != '\0') {
-        	try {
-				c = (char) this.inFromServer.read();
-			} catch (IOException e) {
-				System.out.println("Error reading char");
-			}
-        	if (c != '\0') {
-        		message += c;
-        	}
-        	
-        }
-        return message;
-	}
-	
+
 	public static void main(String argv[]) throws Exception 
     { 
         String messagetoServer; 
@@ -32,10 +14,8 @@ public class Client {
 	
         DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream()); 	
         
-        Client client = new Client();
-        
-        client.inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); 
-        System.out.println(client.receiveMessageFromServer());
+        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); 
+	
         while(true) {
         	
         	messagetoServer = inFromUser.readLine(); 
@@ -43,7 +23,15 @@ public class Client {
             outToServer.writeBytes(messagetoServer + '\n'); 
             
             //messageFromServer = inFromServer.readLine(); 
-            messageFromServer = client.receiveMessageFromServer();
+            char c = 'a';
+            messageFromServer = ""; 
+            while(c != '\0') {
+            	c = (char) inFromServer.read();
+            	if (c != '\0') {
+            		messageFromServer += c;
+            	}
+            	
+            }
             
             System.out.println("FROM SERVER: " + messageFromServer); 
             

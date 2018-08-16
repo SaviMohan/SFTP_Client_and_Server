@@ -48,7 +48,7 @@ public class Server {
 		}		
 	}
 	
-	private void processIncomingMessage(String messageFromClient) {
+	private String processIncomingMessage(String messageFromClient) {
 		if(messageFromClient.length() > 3) {
 			String command = messageFromClient.substring(0, 4).toUpperCase();
 			switch(command) {
@@ -86,34 +86,20 @@ public class Server {
 				//
 				break;
 			default:
-				this.sendMessageToClient("- Error: command not recognized");				
+				return "- Error: command not recognized";				
 			}
 		} else {
-			this.sendMessageToClient("- Error: command not recognized");
+			return "- Error: command not recognized";	
 		}
-		this.sendMessageToClient("- Error: An error occurred while processing your command.");		
+		return "- Error: An error occurred while processing your command.";		
 	}
 	
 	private void cmdUSER(String messageFromClient) {
-		String userid = messageFromClient.substring(5).trim();
-		for (List<String> user : userList) {
-		    if (user.get(0)==userid) {
-		    	if (user.get(1)=="" && user.get(2)=="") {
-		    		this.sendMessageToClient("!"+userid+" logged in");
-		    		this.setClientLoggedIn(true);
-		    		return;
-		    	} else {
-		    		this.sendMessageToClient("+User-id valid, send account and password");
-		    		return;
-		    	}
-		    	
-		    }
-		}
-		this.sendMessageToClient("-Invalid user-id, try again");		
+		
 	}
 	
 	private void cmdACCT(String messageFromClient) {
-		String account = messageFromClient.substring(5).trim();
+		
 	}
 	
 	private void cmdPASS(String messageFromClient) {
@@ -163,7 +149,6 @@ public class Server {
 	Socket connectionSocket = welcomeSocket.accept();
 	BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
 	tcpServer.outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
-	tcpServer.sendMessageToClient("+localhost SFTP Service");
 		while(true) { 
 		    
 	        //Socket connectionSocket = welcomeSocket.accept(); 
@@ -176,10 +161,10 @@ public class Server {
 		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
 		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
-		    tcpServer.processIncomingMessage(receivedClientMessage);
+		    messageToClient = tcpServer.processIncomingMessage(receivedClientMessage);
 		    
 		    //tcpServer.outToClient.writeBytes(messageToClient); 
-		    //tcpServer.sendMessageToClient(messageToClient);
+		    tcpServer.sendMessageToClient(messageToClient);
 	    } 
     } 
 

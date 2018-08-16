@@ -109,11 +109,11 @@ public class Server {
 		    	
 		    }
 		}
-		this.sendMessageToClient("-Invalid user-id, try again");		
+		this.sendMessageToClient("-Invalid user-id, try again");
 	}
 	
 	private void cmdACCT(String messageFromClient) {
-		String account = messageFromClient.substring(5).trim();
+		
 	}
 	
 	private void cmdPASS(String messageFromClient) {
