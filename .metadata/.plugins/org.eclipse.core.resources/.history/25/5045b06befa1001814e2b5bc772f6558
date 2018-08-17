@@ -4,14 +4,6 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List; 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 public class Server {
 	private static final String userFile = "src/SFTPServer/userdata.txt";
@@ -19,10 +11,8 @@ public class Server {
 	private boolean clientLoggedIn = false;
 	private boolean clientAccountValidated = false;
 	private boolean clientPasswordValidated = false;
-	private String mappingType = "B";
 	private List<String> currentUser;
 	private DataOutputStream  outToClient;
-	private String currentDirectory = "src/SFTPServer/public/storage";
 	
 	Server(){
 		this.currentUser = Arrays.asList(" ", " ", " ");
@@ -121,7 +111,7 @@ public class Server {
 	}
 	
 	private void cmdACCT(String messageFromClient) {
-		String account = messageFromClient.substring(5).trim();//
+		String account = messageFromClient.substring(5).trim();
 		if (this.currentUser.get(0)!=" ") {
 			if(this.currentUser.get(1)==" " && this.currentUser.get(2)==" ") {
 				this.sendMessageToClient("!Account valid, logged-in");
@@ -150,149 +140,47 @@ public class Server {
 			} else {
 				this.sendMessageToClient("-Invalid account, try again");
 				//this.clientAccountValidated = false;
-			}			
+			}
+			
 		} else {
 			this.sendMessageToClient("-Please enter userID first");
 		}
 	}
 	
 	private void cmdPASS(String messageFromClient) {
-		String password = messageFromClient.substring(5).trim();//
-		if (this.currentUser.get(0)!=" ") {
-			if(this.currentUser.get(1)==" " && this.currentUser.get(2)==" ") {
-				this.sendMessageToClient("!Password valid, logged-in");
-				this.clientLoggedIn= true;	
-				this.clientAccountValidated = true;
-				this.clientPasswordValidated = true;				
-			} else if (this.currentUser.get(2)==" " && this.currentUser.get(1)!=" ") {
-				if (this.clientAccountValidated) {
-					this.sendMessageToClient("!Password valid, logged-in");
-				} else {
-					this.sendMessageToClient("+Password valid, send account");
-				}				
-				this.clientPasswordValidated = true;
-			} else if (this.currentUser.get(2)==password && this.currentUser.get(1)==" ") {
-				this.sendMessageToClient("!Password valid, logged-in");
-				this.clientLoggedIn =true;
-				this.clientAccountValidated = true;
-				this.clientPasswordValidated = true;	
-			} else if (this.currentUser.get(2)==password && this.currentUser.get(1)!=" ") {
-				if (this.clientAccountValidated) {
-					this.sendMessageToClient("!Password valid, logged-in");
-				} else {
-					this.sendMessageToClient("+Password valid, send account");
-				}				
-				this.clientPasswordValidated = true;
-			} else {
-				this.sendMessageToClient("-Wrong password, try again");
-				//this.clientPasswordValidated = false;
-			}			
-		} else {
-			this.sendMessageToClient("-Please enter userID first");
-		}
+		
 	}
 	
 	private void cmdTYPE(String messageFromClient) {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-		}
-		String type = messageFromClient.substring(5).trim();//
-		if (type == "A") {
-			this.sendMessageToClient("+Using Ascii mode");
-			this.mappingType = "A";
-		} else if (type == "B") {
-			this.sendMessageToClient("+Using Binary mode");
-			this.mappingType = "B";
-		} else if (type == "C") {
-			this.sendMessageToClient("+Using Continuous mode");
-			this.mappingType = "C";
-		} else {
-			this.sendMessageToClient("-Type not valid");
-		}
+		
 	}
 	
-	private void cmdLIST(String messageFromClient) throws IOException {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-		}
-		String listType = messageFromClient.substring(5,6).trim();//
-		if (messageFromClient.length()>6) {
-			String directory = messageFromClient.substring(7).trim();//
-			
-			File f = new File(directory);
-			if(!f.isDirectory()) {
-				this.sendMessageToClient("-invalid file directory");
-				return;
-			}
-			
-			this.currentDirectory = directory;
-		} 		
-		
-		File folder = new File(this.currentDirectory);
-		File[] listOfFiles = folder.listFiles();
-		
-		String messageToSend = "+"+this.currentDirectory+"\r\n";
-		if (listType == "F") {
-			for (int i = 0; i < listOfFiles.length; i++) {
-				if (listOfFiles[i].isFile()) {
-					messageToSend += listOfFiles[i].getName();
-					messageToSend += "\r\n";					
-				} 
-			}
-			this.sendMessageToClient(messageToSend);
-		} else if (listType == "V") {
-			for (int i = 0; i < listOfFiles.length; i++) {
-				if (listOfFiles[i].isFile()) {
-					LocalDateTime date = LocalDateTime.ofInstant(
-					        Instant.ofEpochMilli(listOfFiles[i].lastModified()), ZoneId.systemDefault()
-					);					
-					messageToSend += listOfFiles[i].getName() + "  ";
-					messageToSend += "Size: " + listOfFiles[i].length() + " bytes  ";
-					messageToSend += "Last Modified: "+date+"  ";
-					messageToSend += "\r\n";					
-				} 
-			}
-			this.sendMessageToClient(messageToSend);
-		} else {
-			this.sendMessageToClient("-invalid parameters for LIST command");
-		}
+	private void cmdLIST(String messageFromClient) {
 		
 	}
 	
 	private void cmdCDIR(String messageFromClient) {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-		}
+		
 	}
 	
 	private void cmdKILL(String messageFromClient) {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-		}
+		
 	}
 	
 	private void cmdNAME(String messageFromClient) {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-		}
+		
 	}
 	
 	private void cmdDONE(String messageFromClient) {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-		}
+		
 	}
 	
 	private void cmdRETR(String messageFromClient) {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-		}
+		
 	}
 	
 	private void cmdSTOR(String messageFromClient) {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-		}
+		
 	}
 
 	public static void main(String argv[]) throws Exception { 

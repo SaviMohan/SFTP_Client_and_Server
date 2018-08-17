@@ -1,3 +1,4 @@
 1534335897313	Move compilation unit
 1534335909067	Move compilation unit
 1534392903954	Encapsulate field 'clientLoggedIn'
+1534480285675	Encapsulate field 'currentUser'

@@ -239,7 +239,6 @@ public class Server {
 					messageToSend += "\r\n";					
 				} 
 			}
-			this.sendMessageToClient(messageToSend);
 		} else if (listType == "V") {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (listOfFiles[i].isFile()) {
@@ -252,7 +251,6 @@ public class Server {
 					messageToSend += "\r\n";					
 				} 
 			}
-			this.sendMessageToClient(messageToSend);
 		} else {
 			this.sendMessageToClient("-invalid parameters for LIST command");
 		}

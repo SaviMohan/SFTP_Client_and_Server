@@ -9,9 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 public class Server {
 	private static final String userFile = "src/SFTPServer/userdata.txt";
@@ -236,23 +233,12 @@ public class Server {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (listOfFiles[i].isFile()) {
 					messageToSend += listOfFiles[i].getName();
-					messageToSend += "\r\n";					
+					messageToSend += "\r\n";
 				} 
 			}
-			this.sendMessageToClient(messageToSend);
 		} else if (listType == "V") {
-			for (int i = 0; i < listOfFiles.length; i++) {
-				if (listOfFiles[i].isFile()) {
-					LocalDateTime date = LocalDateTime.ofInstant(
-					        Instant.ofEpochMilli(listOfFiles[i].lastModified()), ZoneId.systemDefault()
-					);					
-					messageToSend += listOfFiles[i].getName() + "  ";
-					messageToSend += "Size: " + listOfFiles[i].length() + " bytes  ";
-					messageToSend += "Last Modified: "+date+"  ";
-					messageToSend += "\r\n";					
-				} 
-			}
-			this.sendMessageToClient(messageToSend);
+			Path p = Paths.get(f1.getAbsolutePath());
+	        BasicFileAttributes view = Files.getFileAttributeView(p, BasicFileAttributeView.class).readAttributes();
 		} else {
 			this.sendMessageToClient("-invalid parameters for LIST command");
 		}

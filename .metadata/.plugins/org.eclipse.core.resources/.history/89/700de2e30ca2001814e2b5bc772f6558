@@ -5,13 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List; 
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 public class Server {
 	private static final String userFile = "src/SFTPServer/userdata.txt";
@@ -22,7 +15,7 @@ public class Server {
 	private String mappingType = "B";
 	private List<String> currentUser;
 	private DataOutputStream  outToClient;
-	private String currentDirectory = "src/SFTPServer/public/storage";
+	private String currentDirectory = "src/SFTPServer/public";
 	
 	Server(){
 		this.currentUser = Arrays.asList(" ", " ", " ");
@@ -211,50 +204,17 @@ public class Server {
 		}
 	}
 	
-	private void cmdLIST(String messageFromClient) throws IOException {
+	private void cmdLIST(String messageFromClient) {
 		if(!this.clientLoggedIn) {
 			this.sendMessageToClient("-Please Login first");
 		}
 		String listType = messageFromClient.substring(5,6).trim();//
-		if (messageFromClient.length()>6) {
-			String directory = messageFromClient.substring(7).trim();//
-			
-			File f = new File(directory);
-			if(!f.isDirectory()) {
-				this.sendMessageToClient("-invalid file directory");
-				return;
-			}
-			
-			this.currentDirectory = directory;
-		} 		
-		
-		File folder = new File(this.currentDirectory);
-		File[] listOfFiles = folder.listFiles();
-		
-		String messageToSend = "+"+this.currentDirectory+"\r\n";
 		if (listType == "F") {
-			for (int i = 0; i < listOfFiles.length; i++) {
-				if (listOfFiles[i].isFile()) {
-					messageToSend += listOfFiles[i].getName();
-					messageToSend += "\r\n";					
-				} 
-			}
-			this.sendMessageToClient(messageToSend);
+			
 		} else if (listType == "V") {
-			for (int i = 0; i < listOfFiles.length; i++) {
-				if (listOfFiles[i].isFile()) {
-					LocalDateTime date = LocalDateTime.ofInstant(
-					        Instant.ofEpochMilli(listOfFiles[i].lastModified()), ZoneId.systemDefault()
-					);					
-					messageToSend += listOfFiles[i].getName() + "  ";
-					messageToSend += "Size: " + listOfFiles[i].length() + " bytes  ";
-					messageToSend += "Last Modified: "+date+"  ";
-					messageToSend += "\r\n";					
-				} 
-			}
-			this.sendMessageToClient(messageToSend);
+			
 		} else {
-			this.sendMessageToClient("-invalid parameters for LIST command");
+			
 		}
 		
 	}
