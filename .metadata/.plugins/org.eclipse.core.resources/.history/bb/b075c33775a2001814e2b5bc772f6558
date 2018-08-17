@@ -68,7 +68,6 @@ public class Server {
 				c = (char) this.inFromClient.read();
 			} catch (IOException e) {
 				System.out.println("Error reading char");
-				break;
 			}
         	if (c != '\0') {
         		message += c;
@@ -340,17 +339,15 @@ public class Server {
 		    receivedClientMessage = tcpServer.receiveMessageFromClient();
 		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
-		    messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
-		    //try {
-		    	//tcpServer.processIncomingMessage(receivedClientMessage);
-		    //}catch (IOException e) {
-		    	//tcpServer.sendMessageToClient("-Error processing your message");
-		    //}		    
+		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
+		    try {
+		    	tcpServer.processIncomingMessage(receivedClientMessage);
+		    }catch (IOException e) {
+		    	tcpServer.sendMessageToClient("-Error processing your message");
+		    }		    
 		    
 		    //tcpServer.outToClient.writeBytes(messageToClient); 
-		    tcpServer.sendMessageToClient(messageToClient);
-		    
-		    //close socket????
+		    //tcpServer.sendMessageToClient(messageToClient);
 	    } 
     } 
 

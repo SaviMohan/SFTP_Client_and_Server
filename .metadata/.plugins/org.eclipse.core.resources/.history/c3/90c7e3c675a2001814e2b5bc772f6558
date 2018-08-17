@@ -3,15 +3,6 @@ import java.io.*;
 import java.net.*; 
 public class Client {
 	BufferedReader inFromServer;
-	DataOutputStream outToServer;
-	
-	private void sendMessageToServer(String message) {
-		try {
-			this.outToServer.writeBytes(message+'\0');
-		} catch (IOException e) {
-			System.out.println("Error sending message");
-		}		
-	}
 	
 	private String receiveMessageFromServer() {
 		char c = 'a';
@@ -21,7 +12,6 @@ public class Client {
 				c = (char) this.inFromServer.read();
 			} catch (IOException e) {
 				System.out.println("Error reading char");
-				break;
 			}
         	if (c != '\0') {
         		message += c;
@@ -40,10 +30,9 @@ public class Client {
 	
         Socket clientSocket = new Socket("localhost", 6789); 
 	
-        
+        DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream()); 	
         
         Client client = new Client();
-        client.outToServer = new DataOutputStream(clientSocket.getOutputStream()); 	
         
         client.inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); 
         System.out.println(client.receiveMessageFromServer());
@@ -51,8 +40,7 @@ public class Client {
         	
         	messagetoServer = inFromUser.readLine(); 
         	
-            //client.outToServer.writeBytes(messagetoServer + '\n'); 
-        	client.sendMessageToServer(messagetoServer);
+            outToServer.writeBytes(messagetoServer + '\n'); 
             
             //messageFromServer = inFromServer.readLine(); 
             messageFromServer = client.receiveMessageFromServer();

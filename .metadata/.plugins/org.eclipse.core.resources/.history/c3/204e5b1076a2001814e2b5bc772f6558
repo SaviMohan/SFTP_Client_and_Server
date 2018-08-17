@@ -21,7 +21,6 @@ public class Client {
 				c = (char) this.inFromServer.read();
 			} catch (IOException e) {
 				System.out.println("Error reading char");
-				break;
 			}
         	if (c != '\0') {
         		message += c;

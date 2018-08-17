@@ -21,14 +21,11 @@ public class Server {
 	private boolean clientPasswordValidated = false;
 	private String mappingType = "B";
 	private List<String> currentUser;
-	private BufferedReader inFromClient;
 	private DataOutputStream  outToClient;
 	private String currentDirectory = "src/SFTPServer/public/storage";
 	
-	
-	Server() throws IOException{
+	Server(){
 		this.currentUser = Arrays.asList(" ", " ", " ");
-		this.getUserData();
 	}
 	
 	private void getUserData() throws IOException {
@@ -60,25 +57,11 @@ public class Server {
 		}		
 	}
 	
-	private String receiveMessageFromClient() {
-		char c = 'a';
-        String message = ""; 
-        while(c != '\0') {
-        	try {
-				c = (char) this.inFromClient.read();
-			} catch (IOException e) {
-				System.out.println("Error reading char");
-				break;
-			}
-        	if (c != '\0') {
-        		message += c;
-        	}
-        	
-        }
-        return message;
+	private void receiveMessageToClient() {
+		
 	}
 	
-	private void processIncomingMessage(String messageFromClient) throws IOException {
+	private void processIncomingMessage(String messageFromClient) {
 		if(messageFromClient.length() > 3) {
 			String command = messageFromClient.substring(0, 4).toUpperCase();
 			switch(command) {
@@ -322,11 +305,11 @@ public class Server {
 	String messageToClient; 
 	
 	Server tcpServer = new Server();
-	//tcpServer.getUserData();
+	tcpServer.getUserData();
 	ServerSocket welcomeSocket = new ServerSocket(6789); 
 	
 	Socket connectionSocket = welcomeSocket.accept();
-	tcpServer.inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
+	BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
 	tcpServer.outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 	tcpServer.sendMessageToClient("+localhost SFTP Service");
 		while(true) { 
@@ -337,20 +320,14 @@ public class Server {
 		    
 		    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		    
-		    receivedClientMessage = tcpServer.receiveMessageFromClient();
+		    receivedClientMessage = inFromClient.readLine();
 		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
-		    messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
-		    //try {
-		    	//tcpServer.processIncomingMessage(receivedClientMessage);
-		    //}catch (IOException e) {
-		    	//tcpServer.sendMessageToClient("-Error processing your message");
-		    //}		    
+		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
+		    tcpServer.processIncomingMessage(receivedClientMessage);
 		    
 		    //tcpServer.outToClient.writeBytes(messageToClient); 
-		    tcpServer.sendMessageToClient(messageToClient);
-		    
-		    //close socket????
+		    //tcpServer.sendMessageToClient(messageToClient);
 	    } 
     } 
 

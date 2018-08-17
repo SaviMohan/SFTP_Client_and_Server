@@ -349,8 +349,6 @@ public class Server {
 		    
 		    //tcpServer.outToClient.writeBytes(messageToClient); 
 		    tcpServer.sendMessageToClient(messageToClient);
-		    
-		    //close socket????
 	    } 
     } 
 
