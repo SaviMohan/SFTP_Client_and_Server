@@ -26,14 +26,9 @@ public class Server {
 	private String currentDirectory = "src/SFTPServer/public/storage";
 	private boolean minusSent = false;
 	private boolean cdirActive = false;
-	private Socket localConnectionSocket;
 	
-	Server(Socket connectionSocket) throws IOException{
+	Server() throws IOException{
 		this.currentUser = Arrays.asList(" ", " ", " ");
-		this.localConnectionSocket = connectionSocket;
-		this.inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
-		this.outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
-		this.sendMessageToClient("+localhost SFTP Service");
 		this.getUserData();
 	}
 	
@@ -435,15 +430,14 @@ public class Server {
 	String receivedClientMessage; 
 	String messageToClient; 
 	
-	
+	Server tcpServer = new Server();
 	//tcpServer.getUserData();
 	ServerSocket welcomeSocket = new ServerSocket(6789); 
 	while(true) {
-		
 		Socket connectionSocket = welcomeSocket.accept();
-		Server tcpServer = new Server(connectionSocket);
-		////
-		////
+		tcpServer.inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
+		tcpServer.outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
+		tcpServer.sendMessageToClient("+localhost SFTP Service");
 			while(true) { 
 			    
 		        //Socket connectionSocket = welcomeSocket.accept(); 
