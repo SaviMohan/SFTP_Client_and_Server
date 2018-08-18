@@ -35,7 +35,6 @@ public class Server {
 		this.outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		this.sendMessageToClient("+localhost SFTP Service");
 		this.getUserData();
-		this.processMessages();
 	}
 	
 	private void getUserData() throws IOException {
@@ -91,35 +90,6 @@ public class Server {
         	
         }
         return message;
-	}
-	
-	private void processMessages() {
-		String receivedClientMessage; 
-		String messageToClient; 
-		
-		while(true) { 
-		    
-	        //Socket connectionSocket = welcomeSocket.accept(); 
-		    
-		    //BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
-		    
-		    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
-		    
-		    receivedClientMessage = this.receiveMessageFromClient();
-		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
-		    
-		    messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
-		    //try {
-		    	//tcpServer.processIncomingMessage(receivedClientMessage);
-		    //}catch (IOException e) {
-		    	//tcpServer.sendMessageToClient("-Error processing your message");
-		    //}		    
-		    
-		    //tcpServer.outToClient.writeBytes(messageToClient); 
-		    this.sendMessageToClient(messageToClient);
-		    
-		    //close socket????
-	    } 
 	}
 	
 	private void processIncomingMessage(String messageFromClient) throws IOException {
@@ -467,6 +437,8 @@ public class Server {
 	}
 
 	public static void main(String argv[]) throws Exception { 
+	String receivedClientMessage; 
+	String messageToClient; 
 	
 	
 	//tcpServer.getUserData();
@@ -477,7 +449,29 @@ public class Server {
 		Server tcpServer = new Server(connectionSocket);
 		////
 		////
-			
+			while(true) { 
+			    
+		        //Socket connectionSocket = welcomeSocket.accept(); 
+			    
+			    //BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
+			    
+			    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
+			    
+			    receivedClientMessage = tcpServer.receiveMessageFromClient();
+			    System.out.println("FROM CLIENT: " + receivedClientMessage); 
+			    
+			    messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
+			    //try {
+			    	//tcpServer.processIncomingMessage(receivedClientMessage);
+			    //}catch (IOException e) {
+			    	//tcpServer.sendMessageToClient("-Error processing your message");
+			    //}		    
+			    
+			    //tcpServer.outToClient.writeBytes(messageToClient); 
+			    tcpServer.sendMessageToClient(messageToClient);
+			    
+			    //close socket????
+		    } 
 	}
 	
     } 
