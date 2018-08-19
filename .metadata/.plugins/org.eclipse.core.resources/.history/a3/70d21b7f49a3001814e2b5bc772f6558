@@ -1,14 +1,9 @@
-/**
- * Author: Savi Mohan
- * UPI: smoh944
- */
 package SFTPClient;
 import java.io.*; 
 import java.net.*; 
 public class Client {
-	private BufferedReader inFromServer;
-	private DataOutputStream outToServer;
-	private String storageDirectory = "src/SFTPClient/public/storage";
+	BufferedReader inFromServer;
+	DataOutputStream outToServer;
 	
 	private void sendMessageToServer(String message) {
 		try {

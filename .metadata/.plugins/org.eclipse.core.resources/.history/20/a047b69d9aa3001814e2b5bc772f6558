@@ -28,7 +28,7 @@ public class Server {
 	private List<String> currentUser;
 	private BufferedReader inFromClient;
 	private DataOutputStream  outToClient;
-	private String currentDirectory = "src/SFTPServer/public";
+	private String currentDirectory = "src/SFTPServer/public/storage";
 	private boolean minusSent = false;
 	private boolean cdirActive = false;
 	private Socket localConnectionSocket;
@@ -44,7 +44,6 @@ public class Server {
 			this.processMessages();
 		} catch(IOException e) {
 			System.out.println("Connection ended");
-			this.localConnectionSocket.close();
 		}
 		
 	}
@@ -107,8 +106,10 @@ public class Server {
 			String fileLine = "";
 			FileReader fr = new FileReader(fileToSend);
 	        BufferedReader br = new BufferedReader(fr);
-	        while ((fileLine = br.readLine()) != null) {	           
-	            fileLines += (fileLine + "\r\n");
+	        while ((fileLine = br.readLine()) != null) {
+	            if (fileLine.contains("\n"))
+	            	fileLine = fileLine.replace("\n", "\r\n");
+	            fileLines += fileLine;
 	        }
 	        fr.close();
 	        br.close();
@@ -128,71 +129,12 @@ public class Server {
 		
 	}
 	
-	private void receiveFileFromClient(String fName, long fileSize, String writeMode) throws IOException {
-		boolean fileAPP = false;
-		String fileName = fName;
-		String filePath = this.currentDirectory + "/" + fileName;
-		if (writeMode.equals("APP")){
-			fileAPP = true;
-		} else if (writeMode.equals("NEW")) {
-			File f = new File(filePath);
+	private void receiveFileFromClient() {
+		if (mappingType.equals("A")) {
 			
-			while(f.exists()&&f.isFile()) {
-				fileName += "1";
-				filePath = this.currentDirectory + "/" + fileName;
-				f = new File(filePath);
-			}
+		} else {
+			
 		}
-		
-		
-		BufferedWriter out = new BufferedWriter(new FileWriter(filePath,fileAPP));
-			
-			char c = (char)inFromClient.read();
-			
-			long count=0;
-			String line = "";
-			if (this.mappingType.equals("A")) {				
-				while(count < fileSize) {
-					count++;
-					if (c == '\r') {
-						c = (char)inFromClient.read();
-						out.write(line);
-						out.newLine();
-						out.flush();
-						line = "";
-					} else {
-						line += c;
-						c = (char)inFromClient.read();
-					}					
-				}	
-				out.flush();
-			} else {
-				while(count < fileSize) {
-					count++;
-					out.write(c);
-					c = (char)inFromClient.read();
-					
-					//FileWriter buffer is 1024 bytes in size, and char can be up to 2 bytes in size, so best to flush every time count reaches 512
-					if(count == 512) {
-						out.flush();
-					}						
-				}	
-				out.flush();
-				
-			}
-			
-			
-		out.close();
-	    
-
-        
-        //while ((count = inFromClient.read(bytes)) > 0) {
-            //out.write(bytes, 0, count);
-        //}
-
-        //out.close();  
-		
-		
 	}
 	
 	private void processMessages() throws IOException{
@@ -585,7 +527,6 @@ public class Server {
 				switch(command) {
 				case "SEND":
 					//send file
-					this.sendFileToClient(f);
 					break;
 				case "STOP":
 					this.sendMessageToClient("+ok, RETR aborted");
@@ -640,7 +581,6 @@ public class Server {
 			long fileSize =  Long.parseLong(sizeMessage.substring(5).trim());
 			if (fileSize < availableFolderSpace) {
 				this.sendMessageToClient("+ok, waiting for file");
-				this.receiveFileFromClient(fileName, fileSize, storeSpec);
 			} else {
 				this.sendMessageToClient("-Not enough room, don’t send it, STOR sequence aborted");
 				return;

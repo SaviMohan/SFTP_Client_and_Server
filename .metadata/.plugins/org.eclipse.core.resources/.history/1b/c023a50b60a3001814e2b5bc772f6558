@@ -7,8 +7,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.nio.charset.StandardCharsets;
+import java.util.List; 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,7 +27,7 @@ public class Server {
 	private List<String> currentUser;
 	private BufferedReader inFromClient;
 	private DataOutputStream  outToClient;
-	private String currentDirectory = "src/SFTPServer/public";
+	private String currentDirectory = "src/SFTPServer/public/storage";
 	private boolean minusSent = false;
 	private boolean cdirActive = false;
 	private Socket localConnectionSocket;
@@ -44,7 +43,6 @@ public class Server {
 			this.processMessages();
 		} catch(IOException e) {
 			System.out.println("Connection ended");
-			this.localConnectionSocket.close();
 		}
 		
 	}
@@ -72,10 +70,10 @@ public class Server {
 	
 	private void sendMessageToClient(String message) {
 		try {
-			if(message.substring(0,1).equals("-")) {
+			if(message.substring(0,1)=="-") {
 				this.minusSent = true;
 			}
-			if (this.cdirActive && message.substring(0,1).equals("!")) {
+			if (this.cdirActive && message.substring(0,1)=="!") {
 				//don't send anything
 			} else {
 				this.outToClient.writeBytes(message+'\0');
@@ -98,101 +96,6 @@ public class Server {
         	
         }
         return message;
-	}
-	
-	private void sendFileToClient(File fileToSend) throws IOException {
-		InputStream in;
-		if (mappingType.equals("A")) {
-			String fileLines = "";
-			String fileLine = "";
-			FileReader fr = new FileReader(fileToSend);
-	        BufferedReader br = new BufferedReader(fr);
-	        while ((fileLine = br.readLine()) != null) {	           
-	            fileLines += (fileLine + "\r\n");
-	        }
-	        fr.close();
-	        br.close();
-			
-			
-			in = new ByteArrayInputStream(fileLines.getBytes(StandardCharsets.US_ASCII));
-		} else {
-			in = new FileInputStream(fileToSend);			
-		}
-		int count;
-		byte[] buffer = new byte[8192]; 
-		while ((count = in.read(buffer)) > 0)
-		{
-			this.outToClient.write(buffer, 0, count);
-		}
-		in.close();
-		
-	}
-	
-	private void receiveFileFromClient(String fName, long fileSize, String writeMode) throws IOException {
-		boolean fileAPP = false;
-		String fileName = fName;
-		String filePath = this.currentDirectory + "/" + fileName;
-		if (writeMode.equals("APP")){
-			fileAPP = true;
-		} else if (writeMode.equals("NEW")) {
-			File f = new File(filePath);
-			
-			while(f.exists()&&f.isFile()) {
-				fileName += "1";
-				filePath = this.currentDirectory + "/" + fileName;
-				f = new File(filePath);
-			}
-		}
-		
-		
-		BufferedWriter out = new BufferedWriter(new FileWriter(filePath,fileAPP));
-			
-			char c = (char)inFromClient.read();
-			
-			long count=0;
-			String line = "";
-			if (this.mappingType.equals("A")) {				
-				while(count < fileSize) {
-					count++;
-					if (c == '\r') {
-						c = (char)inFromClient.read();
-						out.write(line);
-						out.newLine();
-						out.flush();
-						line = "";
-					} else {
-						line += c;
-						c = (char)inFromClient.read();
-					}					
-				}	
-				out.flush();
-			} else {
-				while(count < fileSize) {
-					count++;
-					out.write(c);
-					c = (char)inFromClient.read();
-					
-					//FileWriter buffer is 1024 bytes in size, and char can be up to 2 bytes in size, so best to flush every time count reaches 512
-					if(count == 512) {
-						out.flush();
-					}						
-				}	
-				out.flush();
-				
-			}
-			
-			
-		out.close();
-	    
-
-        
-        //while ((count = inFromClient.read(bytes)) > 0) {
-            //out.write(bytes, 0, count);
-        //}
-
-        //out.close();  
-		
-		
 	}
 	
 	private void processMessages() throws IOException{
@@ -275,8 +178,9 @@ public class Server {
 		System.out.println(userid);
 		for (List<String> user : userList) {
 			System.out.println(user.get(0));
-			if (user.get(0).trim().equals(userid)) {		    	
-		    	if (user.get(1).equals(" ") && user.get(2).equals(" ")) {
+			if (user.get(0)==userid) {
+		    	
+		    	if (user.get(1)==" " && user.get(2)==" ") {
 		    		this.sendMessageToClient("!"+userid+" logged in");
 		    		this.clientLoggedIn =true;		    			    		
 		    	} else {
@@ -291,29 +195,27 @@ public class Server {
 	
 	private void cmdACCT(String messageFromClient) {
 		String account = messageFromClient.substring(5).trim();//
-		if (!this.currentUser.get(0).equals(" ")) {
-			if(this.currentUser.get(1).equals(" ") && this.currentUser.get(2).equals(" ")) {
+		if (this.currentUser.get(0)!=" ") {
+			if(this.currentUser.get(1)==" " && this.currentUser.get(2)==" ") {
 				this.sendMessageToClient("!Account valid, logged-in");
 				this.clientLoggedIn= true;	
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;				
-			} else if (this.currentUser.get(1).equals(" ") && !this.currentUser.get(2).equals(" ")) {
+			} else if (this.currentUser.get(1)==" " && this.currentUser.get(2)!=" ") {
 				if (this.clientPasswordValidated) {
 					this.sendMessageToClient("!Account valid, logged-in");
-					this.clientLoggedIn =true;
 				} else {
 					this.sendMessageToClient("+Account valid, send password");
 				}				
 				this.clientAccountValidated = true;
-			} else if (this.currentUser.get(1).equals(account) && this.currentUser.get(2).equals(" ")) {
+			} else if (this.currentUser.get(1)==account && this.currentUser.get(2)==" ") {
 				this.sendMessageToClient("!Account valid, logged-in");
 				this.clientLoggedIn =true;
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;	
-			} else if (this.currentUser.get(1).equals(account) && !this.currentUser.get(2).equals(" ")) {
+			} else if (this.currentUser.get(1)==account && this.currentUser.get(2)!=" ") {
 				if (this.clientPasswordValidated) {
 					this.sendMessageToClient("!Account valid, logged-in");
-					this.clientLoggedIn =true;
 				} else {
 					this.sendMessageToClient("+Account valid, send password");
 				}				
@@ -329,29 +231,27 @@ public class Server {
 	
 	private void cmdPASS(String messageFromClient) {
 		String password = messageFromClient.substring(5).trim();//
-		if (!this.currentUser.get(0).equals(" ")) {
-			if(this.currentUser.get(1).equals(" ") && this.currentUser.get(2).equals(" ")) {
+		if (this.currentUser.get(0)!=" ") {
+			if(this.currentUser.get(1)==" " && this.currentUser.get(2)==" ") {
 				this.sendMessageToClient("!Password valid, logged-in");
 				this.clientLoggedIn= true;	
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;				
-			} else if (this.currentUser.get(2).equals(" ") && !this.currentUser.get(1).equals(" ")) {
+			} else if (this.currentUser.get(2)==" " && this.currentUser.get(1)!=" ") {
 				if (this.clientAccountValidated) {
 					this.sendMessageToClient("!Password valid, logged-in");
-					this.clientLoggedIn =true;
 				} else {
 					this.sendMessageToClient("+Password valid, send account");
 				}				
 				this.clientPasswordValidated = true;
-			} else if (this.currentUser.get(2).equals(password) && this.currentUser.get(1).equals(" ")) {
+			} else if (this.currentUser.get(2)==password && this.currentUser.get(1)==" ") {
 				this.sendMessageToClient("!Password valid, logged-in");
 				this.clientLoggedIn =true;
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;	
-			} else if (this.currentUser.get(2).equals(password) && !this.currentUser.get(1).equals(" ")) {
+			} else if (this.currentUser.get(2)==password && this.currentUser.get(1)!=" ") {
 				if (this.clientAccountValidated) {
 					this.sendMessageToClient("!Password valid, logged-in");
-					this.clientLoggedIn =true;
 				} else {
 					this.sendMessageToClient("+Password valid, send account");
 				}				
@@ -372,13 +272,13 @@ public class Server {
 		}
 		//message + "      ".trim()
 		String type = messageFromClient.substring(5).trim().toUpperCase();//
-		if (type.equals("A")) {
+		if (type == "A") {
 			this.sendMessageToClient("+Using Ascii mode");
 			this.mappingType = "A";
-		} else if (type.equals("B")) {
+		} else if (type == "B") {
 			this.sendMessageToClient("+Using Binary mode");
 			this.mappingType = "B";
-		} else if (type.equals("C")) {
+		} else if (type == "C") {
 			this.sendMessageToClient("+Using Continuous mode");
 			this.mappingType = "C";
 		} else {
@@ -409,7 +309,7 @@ public class Server {
 		File[] listOfFiles = folder.listFiles();
 		
 		String messageToSend = "+"+directory+"\r\n";
-		if (listType.equals("F")) {
+		if (listType == "F") {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (listOfFiles[i].isFile()) {
 					messageToSend += listOfFiles[i].getName();
@@ -417,7 +317,7 @@ public class Server {
 				} 
 			}
 			this.sendMessageToClient(messageToSend);
-		} else if (listType.equals("V")) {
+		} else if (listType == "V") {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (listOfFiles[i].isFile()) {
 					LocalDateTime date = LocalDateTime.ofInstant(
@@ -451,9 +351,9 @@ public class Server {
 		if(this.clientLoggedIn) {
 			this.currentDirectory = directory;
 			this.sendMessageToClient("!Changed working dir to "+ directory);
-		} else if (!this.clientLoggedIn && this.currentUser.get(0).equals(" ")) {
+		} else if (!this.clientLoggedIn && this.currentUser.get(0)==" ") {
 			this.sendMessageToClient("-Please enter userID first");
-		} else if (!this.clientLoggedIn && !this.currentUser.get(0).equals(" ")) {//&& (!this.clientPasswordValidated||!this.clientAccountValidated)) {
+		} else if (!this.clientLoggedIn && this.currentUser.get(0)!=" ") {//&& (!this.clientPasswordValidated||!this.clientAccountValidated)) {
 			this.sendMessageToClient("+directory ok, send account/password");
 			this.minusSent = false;
 			while(true) {
@@ -528,7 +428,7 @@ public class Server {
 			
 			if(receivedMessage.length() > 3) {
 				String command = messageFromClient.substring(0, 4).toUpperCase();
-				if (command.equals("TOBE")) {					
+				if (command == "TOBE") {					
 					String newFileName = receivedMessage.substring(5).trim();//
 					String newFilePath = this.currentDirectory + "/" + newFileName;
 					File f1 = new File(newFilePath);
@@ -585,7 +485,6 @@ public class Server {
 				switch(command) {
 				case "SEND":
 					//send file
-					this.sendFileToClient(f);
 					break;
 				case "STOP":
 					this.sendMessageToClient("+ok, RETR aborted");
@@ -613,19 +512,19 @@ public class Server {
 		File f = new File(filePath);
 		File dir = new File(this.currentDirectory);
 		long availableFolderSpace = dir.getUsableSpace();
-		if (storeSpec.equals("NEW")) {
+		if (storeSpec == "NEW") {
 			if(f.exists()&&f.isFile()) {
 				this.sendMessageToClient("+File exists, will create new generation of file");
 			} else {
 				this.sendMessageToClient("+File does not exist, will create new file");
 			}
-		} else if (storeSpec.equals("OLD")) {
+		} else if (storeSpec == "OLD") {
 			if(f.exists()&&f.isFile()) {
 				this.sendMessageToClient("+Will write over old file");
 			} else {
 				this.sendMessageToClient("+Will create new file");
 			}
-		} else if (storeSpec.equals("APP")) {
+		} else if (storeSpec == "APP") {
 			if(f.exists()&&f.isFile()) {
 				this.sendMessageToClient("+Will append to file");
 			} else {
@@ -636,11 +535,10 @@ public class Server {
 			return;
 		}
 		String sizeMessage = this.receiveMessageFromClient();
-		if (sizeMessage.substring(0,4).toUpperCase().equals("SIZE")) {
+		if (sizeMessage.substring(0,4).toUpperCase()=="SIZE") {
 			long fileSize =  Long.parseLong(sizeMessage.substring(5).trim());
 			if (fileSize < availableFolderSpace) {
 				this.sendMessageToClient("+ok, waiting for file");
-				this.receiveFileFromClient(fileName, fileSize, storeSpec);
 			} else {
 				this.sendMessageToClient("-Not enough room, don’t send it, STOR sequence aborted");
 				return;
