@@ -1,0 +1,158 @@
+/**
+ * Author: Savi Mohan
+ * UPI: smoh944
+ */
+package SFTPClient;
+import java.io.*; 
+import java.net.*;
+import java.nio.charset.StandardCharsets; 
+public class Client {
+	private BufferedReader inFromServer;
+	private DataOutputStream outToServer;
+	private String currentDirectory = "src/SFTPClient/public/storage";
+	private String mappingType = "B";
+	
+	
+	private void sendMessageToServer(String message) {
+		try {
+			this.outToServer.writeBytes(message+'\0');
+		} catch (IOException e) {
+			System.out.println("Error sending message");
+		}		
+	}
+	
+	private void sendFileToClient(File fileToSend) throws IOException {
+		InputStream in;
+		if (mappingType.equals("A")) {
+			String fileLines = "";
+			String fileLine = "";
+			FileReader fr = new FileReader(fileToSend);
+	        BufferedReader br = new BufferedReader(fr);
+	        while ((fileLine = br.readLine()) != null) {	           
+	            fileLines += (fileLine + "\r\n");
+	        }
+	        fr.close();
+	        br.close();
+			
+			
+			in = new ByteArrayInputStream(fileLines.getBytes(StandardCharsets.US_ASCII));
+		} else {
+			in = new FileInputStream(fileToSend);			
+		}
+		int count;
+		byte[] buffer = new byte[8192]; 
+		while ((count = in.read(buffer)) > 0)
+		{
+			this.outToServer.write(buffer, 0, count);
+		}
+		in.close();
+		
+	}
+	
+	private void receiveFileFromClient(String fName, long fileSize, String writeMode) throws IOException {
+		boolean fileAPP = false;
+		String fileName = fName;
+		String filePath = this.currentDirectory + "/" + fileName;
+		if (writeMode.equals("APP")){
+			fileAPP = true;
+		} else if (writeMode.equals("NEW")) {
+			File f = new File(filePath);
+			
+			while(f.exists()&&f.isFile()) {
+				fileName += "1";
+				filePath = this.currentDirectory + "/" + fileName;
+				f = new File(filePath);
+			}
+		}
+		
+		
+		BufferedWriter out = new BufferedWriter(new FileWriter(filePath,fileAPP));
+			
+			char c = (char)this.inFromServer.read();
+			
+			long count=0;
+			String line = "";
+			if (this.mappingType.equals("A")) {				
+				while(count < fileSize) {
+					count++;
+					if (c == '\r') {
+						c = (char)this.inFromServer.read();
+						out.write(line);
+						out.newLine();
+						out.flush();
+						line = "";
+					} else {
+						line += c;
+						c = (char)this.inFromServer.read();
+					}					
+				}	
+				out.flush();
+			} else {
+				while(count < fileSize) {
+					count++;
+					out.write(c);
+					c = (char)this.inFromServer.read();
+					
+					//FileWriter buffer is 1024 bytes in size, and char can be up to 2 bytes in size, so best to flush every time count reaches 512
+					if(count == 512) {
+						out.flush();
+					}						
+				}	
+				out.flush();				
+			}			
+		out.close(); 	
+	}
+	
+	private String receiveMessageFromServer() {
+		char c = 'a';
+        String message = ""; 
+        while(c != '\0') {
+        	try {
+				c = (char) this.inFromServer.read();
+			} catch (IOException e) {
+				System.out.println("Error reading char");
+				break;
+			}
+        	if (c != '\0') {
+        		message += c;
+        	}
+        	
+        }
+        return message;
+	}
+	
+	public static void main(String argv[]) throws Exception 
+    { 
+        String messagetoServer; 
+        String messageFromServer; 
+	
+        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); 
+	
+        Socket clientSocket = new Socket("localhost", 6789); 
+	
+        
+        
+        Client client = new Client();
+        client.outToServer = new DataOutputStream(clientSocket.getOutputStream()); 	
+        
+        client.inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); 
+        System.out.println(client.receiveMessageFromServer());
+        while(true) {
+        	
+        	messagetoServer = inFromUser.readLine(); 
+        	
+            //client.outToServer.writeBytes(messagetoServer + '\n'); 
+        	client.sendMessageToServer(messagetoServer);
+            
+            //messageFromServer = inFromServer.readLine(); 
+            messageFromServer = client.receiveMessageFromServer();
+            
+            System.out.println("FROM SERVER: " + messageFromServer); 
+            
+            //clientSocket.close(); 
+        }
+        
+	
+    } 
+
+}

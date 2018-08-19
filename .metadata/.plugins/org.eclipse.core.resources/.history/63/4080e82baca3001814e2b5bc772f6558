@@ -138,53 +138,45 @@ public class Server {
 			File f = new File(filePath);
 			
 			while(f.exists()&&f.isFile()) {
-				fileName = "n_" + fileName;
+				fileName += "1";
 				filePath = this.currentDirectory + "/" + fileName;
 				f = new File(filePath);
 			}
 		}		
 		
-		BufferedWriter out = null;	
-		try {
-			out = new BufferedWriter(new FileWriter(filePath,fileAPP));		
-			char c = (char)this.inFromClient.read();			
-			long count=0;
-			String line = "";
-			if (this.mappingType.equals("A")) {				
-				while(count < fileSize) {
-					count++;
-					if (c == '\r') {
-						c = (char)this.inFromClient.read();
-						out.write(line);
-						out.newLine();
-						out.flush();
-						line = "";
-					} else {
-						line += c;
-						c = (char)this.inFromClient.read();
-					}					
-				}	
-				out.flush();
-			} else {
-				while(count < fileSize) {
-					count++;
-					out.write(c);
+		BufferedWriter out = new BufferedWriter(new FileWriter(filePath,fileAPP));			
+		char c = (char)this.inFromClient.read();			
+		long count=0;
+		String line = "";
+		if (this.mappingType.equals("A")) {				
+			while(count < fileSize) {
+				count++;
+				if (c == '\r') {
 					c = (char)this.inFromClient.read();
-					
-					//FileWriter buffer is 1024 bytes in size, and char can be up to 2 bytes in size, so best to flush every time count reaches 512
-					if(count == 512) {
-						out.flush();
-					}						
-				}	
-				out.flush();			
+					out.write(line);
+					out.newLine();
+					out.flush();
+					line = "";
+				} else {
+					line += c;
+					c = (char)this.inFromClient.read();
+				}					
 			}	
-		}catch (IOException e){
-			out.close();
-			this.sendMessageToClient("-Couldn’t save because " + e.getMessage());
-			return;
-		}
-		out.close();
-		this.sendMessageToClient("+Saved "+ fileName);
+			out.flush();
+		} else {
+			while(count < fileSize) {
+				count++;
+				out.write(c);
+				c = (char)this.inFromClient.read();
+				
+				//FileWriter buffer is 1024 bytes in size, and char can be up to 2 bytes in size, so best to flush every time count reaches 512
+				if(count == 512) {
+					out.flush();
+				}						
+			}	
+			out.flush();			
+		}			
+		out.close();		
 	}
 	
 	private void processMessages() throws IOException{
@@ -578,7 +570,6 @@ public class Server {
 				case "SEND":
 					//send file
 					this.sendFileToClient(f);
-					System.out.println("Sending file");
 					break;
 				case "STOP":
 					this.sendMessageToClient("+ok, RETR aborted");

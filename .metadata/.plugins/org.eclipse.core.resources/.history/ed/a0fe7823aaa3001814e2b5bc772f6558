@@ -51,20 +51,20 @@ public class Server {
 	
 	private void getUserData() throws IOException {
 		userList = new ArrayList<List<String>>();
-		// open the user data file
+		// opens the user data file
 		FileInputStream fstream = new FileInputStream(userFile);
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
 		String userLine;
 		
 		userLine = br.readLine();
-		//read each line of user data file
+		//reads each line of user data file
 		while ((userLine = br.readLine()) != null)   {
 			List<String> userDetails = Arrays.asList(userLine.split(",",-1));
 			userList.add(userDetails);
 		}
 
-		//close the input buffer stream
+		//closes the input buffer stream
 		br.close();
 		fstream.close();
 		System.out.println(userList);
@@ -138,16 +138,17 @@ public class Server {
 			File f = new File(filePath);
 			
 			while(f.exists()&&f.isFile()) {
-				fileName = "n_" + fileName;
+				fileName += "1";
 				filePath = this.currentDirectory + "/" + fileName;
 				f = new File(filePath);
 			}
-		}		
+		}
 		
-		BufferedWriter out = null;	
-		try {
-			out = new BufferedWriter(new FileWriter(filePath,fileAPP));		
-			char c = (char)this.inFromClient.read();			
+		
+		BufferedWriter out = new BufferedWriter(new FileWriter(filePath,fileAPP));
+			
+			char c = (char)this.inFromClient.read();
+			
 			long count=0;
 			String line = "";
 			if (this.mappingType.equals("A")) {				
@@ -176,15 +177,22 @@ public class Server {
 						out.flush();
 					}						
 				}	
-				out.flush();			
-			}	
-		}catch (IOException e){
-			out.close();
-			this.sendMessageToClient("-Couldn’t save because " + e.getMessage());
-			return;
-		}
+				out.flush();
+				
+			}
+			
+			
 		out.close();
-		this.sendMessageToClient("+Saved "+ fileName);
+	    
+
+        
+        //while ((count = inFromClient.read(bytes)) > 0) {
+            //out.write(bytes, 0, count);
+        //}
+
+        //out.close();  
+		
+		
 	}
 	
 	private void processMessages() throws IOException{
@@ -578,7 +586,6 @@ public class Server {
 				case "SEND":
 					//send file
 					this.sendFileToClient(f);
-					System.out.println("Sending file");
 					break;
 				case "STOP":
 					this.sendMessageToClient("+ok, RETR aborted");

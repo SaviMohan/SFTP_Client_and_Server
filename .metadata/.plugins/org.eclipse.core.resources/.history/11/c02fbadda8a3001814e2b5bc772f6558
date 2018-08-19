@@ -27,60 +27,31 @@ public class Client {
         try {
         	while(true) {
             	
-            	messagetoServer = inFromUser.readLine()+"         ";   
+            	messagetoServer = inFromUser.readLine(); 
             	
-            	String command = messagetoServer.substring(0, 4).toUpperCase();
-    			switch(command) {
-    			
-    			case "RETR":
-    				this.cmdRETR(messagetoServer);
-    				break;
-    			case "STOR":
-    				this.cmdSTOR(messagetoServer);
-    				break;
-    			default:
-    				this.sendMessageToServer(messagetoServer);    	
-    			} 
-            	            
+                //client.outToServer.writeBytes(messagetoServer + '\n'); 
+            	this.sendMessageToServer(messagetoServer);
                 
+                //messageFromServer = inFromServer.readLine(); 
                 messageFromServer = this.receiveMessageFromServer();
                 
                 System.out.println("FROM SERVER: " + messageFromServer); 
                 
-                //clientSocket.close();//////////////// 
+                //clientSocket.close(); 
             }
         }catch (SocketException s) {
         	this.localConnectionSocket.close();
         	System.out.println("Connection closed with Server");
-        } catch (IOException e) {
-        	System.out.println("IOException: connection now closed with Server");
         }
         
 	}
 	
-	private void cmdRETR(String messageFromClient) {
-		
-	}
-	
-	private void cmdSTOR(String messageFromClient) {
-		
-	}
-	
-	private void sendMessageToServer(String message) throws IOException {		
-		this.outToServer.writeBytes(message+'\0');		 
-	}
-	
-	private String receiveMessageFromServer() throws IOException {
-		char c = 'a';
-        String message = ""; 
-        while(c != '\0') {
-        	c = (char) this.inFromServer.read();
-			if (c != '\0') {
-        		message += c;
-        	}
-        	
-        }
-        return message;
+	private void sendMessageToServer(String message) {
+		try {
+			this.outToServer.writeBytes(message+'\0');
+		} catch (IOException e) {
+			System.out.println("Error sending message");
+		}		
 	}
 	
 	private void sendFileToServer(File fileToSend) throws IOException {
@@ -163,6 +134,24 @@ public class Client {
 				out.flush();				
 			}			
 		out.close(); 	
+	}
+	
+	private String receiveMessageFromServer() {
+		char c = 'a';
+        String message = ""; 
+        while(c != '\0') {
+        	try {
+				c = (char) this.inFromServer.read();
+			} catch (IOException e) {
+				System.out.println("Error reading char");
+				break;
+			}
+        	if (c != '\0') {
+        		message += c;
+        	}
+        	
+        }
+        return message;
 	}
 	
 	public static void main(String argv[]) throws Exception 

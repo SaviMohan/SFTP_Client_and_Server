@@ -27,27 +27,17 @@ public class Client {
         try {
         	while(true) {
             	
-            	messagetoServer = inFromUser.readLine()+"         ";   
+            	messagetoServer = inFromUser.readLine(); 
             	
-            	String command = messagetoServer.substring(0, 4).toUpperCase();
-    			switch(command) {
-    			
-    			case "RETR":
-    				this.cmdRETR(messagetoServer);
-    				break;
-    			case "STOR":
-    				this.cmdSTOR(messagetoServer);
-    				break;
-    			default:
-    				this.sendMessageToServer(messagetoServer);    	
-    			} 
-            	            
+                //client.outToServer.writeBytes(messagetoServer + '\n'); 
+            	this.sendMessageToServer(messagetoServer);
                 
+                //messageFromServer = inFromServer.readLine(); 
                 messageFromServer = this.receiveMessageFromServer();
                 
                 System.out.println("FROM SERVER: " + messageFromServer); 
                 
-                //clientSocket.close();//////////////// 
+                //clientSocket.close(); 
             }
         }catch (SocketException s) {
         	this.localConnectionSocket.close();
@@ -56,14 +46,6 @@ public class Client {
         	System.out.println("IOException: connection now closed with Server");
         }
         
-	}
-	
-	private void cmdRETR(String messageFromClient) {
-		
-	}
-	
-	private void cmdSTOR(String messageFromClient) {
-		
 	}
 	
 	private void sendMessageToServer(String message) throws IOException {		
