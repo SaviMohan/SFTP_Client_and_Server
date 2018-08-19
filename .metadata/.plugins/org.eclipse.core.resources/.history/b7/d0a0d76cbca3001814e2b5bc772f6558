@@ -449,7 +449,7 @@ public class Server {
 		} else if (userNames.parallelStream().anyMatch(directory::contains)) {
 			Optional<String> match = userNames.parallelStream().filter(directory::contains).findAny();
 			List<String> currUser = this.currentUser;
-			List<String> tempUser = null;
+			List<String> tempUser;
 			for (List<String> user : userList) {
 				if(user.get(0).trim().equals(match)) {
 					tempUser = user;
@@ -457,47 +457,6 @@ public class Server {
 				}
 			}
 			try {
-				this.currentUser = tempUser;
-				this.clientLoggedIn= false;	
-				this.clientAccountValidated = false;
-				this.clientPasswordValidated = false;
-				
-				this.sendMessageToClient("+directory ok, but need credentials to verify, send account/password");
-				
-				this.minusSent = false;
-				while(true) {
-					String receivedMessage = this.receiveMessageFromClient();
-					this.cdirActive = true;
-					if(receivedMessage.length() > 3) {
-						String command = messageFromClient.substring(0, 4).toUpperCase();
-						switch(command) {
-						case "ACCT":
-							this.cmdACCT(receivedMessage);
-							break;
-						case "PASS":
-							this.cmdPASS(receivedMessage);
-							break;
-						default:
-							this.sendMessageToClient("- Error: command not recognized");							
-						}
-					} else {
-						this.sendMessageToClient("- Error: command not recognized");
-						this.minusSent = false;
-						this.cdirActive = false;
-						break;
-					}
-					this.cdirActive = false;
-					if(this.clientLoggedIn) {
-						this.currentDirectory = directory;
-						this.minusSent = false;
-						this.sendMessageToClient("!Changed working dir to "+ directory);
-						break;
-					}
-					if (this.minusSent) {
-						this.minusSent = false;
-						break;
-					}
-				}
 				
 			} catch (Exception e) {
 				this.currentUser = currUser;
@@ -510,7 +469,49 @@ public class Server {
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;
 			}
-		}	
+		}
+		
+		else if (!this.clientLoggedIn && this.currentUser.get(0).equals(" ")) {
+			this.sendMessageToClient("-Please enter userID first");
+		} else if (!this.clientLoggedIn && !this.currentUser.get(0).equals(" ")) {//&& (!this.clientPasswordValidated||!this.clientAccountValidated)) {
+			this.sendMessageToClient("+directory ok, send account/password");
+			this.minusSent = false;
+			while(true) {
+				String receivedMessage = this.receiveMessageFromClient();
+				this.cdirActive = true;
+				if(receivedMessage.length() > 3) {
+					String command = messageFromClient.substring(0, 4).toUpperCase();
+					switch(command) {
+					case "ACCT":
+						this.cmdACCT(receivedMessage);
+						break;
+					case "PASS":
+						this.cmdPASS(receivedMessage);
+						break;
+					default:
+						this.sendMessageToClient("- Error: command not recognized");				
+					}
+				} else {
+					this.sendMessageToClient("- Error: command not recognized");
+					this.minusSent = false;
+					this.cdirActive = false;
+					break;
+				}
+				this.cdirActive = false;
+				if(this.clientLoggedIn) {
+					this.currentDirectory = directory;
+					this.minusSent = false;
+					this.sendMessageToClient("!Changed working dir to "+ directory);
+					break;
+				}
+				if (this.minusSent) {
+					this.minusSent = false;
+					break;
+				}
+			}
+			
+			
+		}
 		
 	}
 	

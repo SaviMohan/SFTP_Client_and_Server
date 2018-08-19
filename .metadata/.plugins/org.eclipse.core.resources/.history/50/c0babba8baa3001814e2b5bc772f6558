@@ -8,7 +8,6 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,7 +21,6 @@ import java.time.ZoneId;
 public class Server {
 	private static final String userFile = "src/SFTPServer/userdata.txt";
 	private static List<List<String>> userList;
-	private static List<String> userNames;
 	private boolean clientLoggedIn = false;
 	private boolean clientAccountValidated = false;
 	private boolean clientPasswordValidated = false;
@@ -64,7 +62,6 @@ public class Server {
 		while ((userLine = br.readLine()) != null)   {
 			List<String> userDetails = Arrays.asList(userLine.split(",",-1));
 			userList.add(userDetails);
-			userNames.add(userDetails.get(0));
 		}
 
 		//close the input buffer stream
@@ -432,10 +429,10 @@ public class Server {
 	}
 	
 	private void cmdCDIR(String messageFromClient) throws IOException {
-		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");
-			return;
-		}
+		//if(!this.clientLoggedIn) {
+			//this.sendMessageToClient("-Please Login first");
+			//return;
+		//}
 		
 		String directory = messageFromClient.substring(5).trim();//
 		File f = new File(directory);
@@ -443,74 +440,50 @@ public class Server {
 			this.sendMessageToClient("-Can’t connect to directory because: invalid file directory");
 			return;
 		}		
-		if((directory.contains(this.currentUser.get(0)))||(!userNames.parallelStream().anyMatch(directory::contains))) {
+		if(this.clientLoggedIn) {
 			this.currentDirectory = directory;
 			this.sendMessageToClient("!Changed working dir to "+ directory);
-		} else if (userNames.parallelStream().anyMatch(directory::contains)) {
-			Optional<String> match = userNames.parallelStream().filter(directory::contains).findAny();
-			List<String> currUser = this.currentUser;
-			List<String> tempUser = null;
-			for (List<String> user : userList) {
-				if(user.get(0).trim().equals(match)) {
-					tempUser = user;
+		} else if (!this.clientLoggedIn && this.currentUser.get(0).equals(" ")) {
+			this.sendMessageToClient("-Please enter userID first");
+		} else if (!this.clientLoggedIn && !this.currentUser.get(0).equals(" ")) {//&& (!this.clientPasswordValidated||!this.clientAccountValidated)) {
+			this.sendMessageToClient("+directory ok, send account/password");
+			this.minusSent = false;
+			while(true) {
+				String receivedMessage = this.receiveMessageFromClient();
+				this.cdirActive = true;
+				if(receivedMessage.length() > 3) {
+					String command = messageFromClient.substring(0, 4).toUpperCase();
+					switch(command) {
+					case "ACCT":
+						this.cmdACCT(receivedMessage);
+						break;
+					case "PASS":
+						this.cmdPASS(receivedMessage);
+						break;
+					default:
+						this.sendMessageToClient("- Error: command not recognized");				
+					}
+				} else {
+					this.sendMessageToClient("- Error: command not recognized");
+					this.minusSent = false;
+					this.cdirActive = false;
+					break;
+				}
+				this.cdirActive = false;
+				if(this.clientLoggedIn) {
+					this.currentDirectory = directory;
+					this.minusSent = false;
+					this.sendMessageToClient("!Changed working dir to "+ directory);
+					break;
+				}
+				if (this.minusSent) {
+					this.minusSent = false;
 					break;
 				}
 			}
-			try {
-				this.currentUser = tempUser;
-				this.clientLoggedIn= false;	
-				this.clientAccountValidated = false;
-				this.clientPasswordValidated = false;
-				
-				this.sendMessageToClient("+directory ok, but need credentials to verify, send account/password");
-				
-				this.minusSent = false;
-				while(true) {
-					String receivedMessage = this.receiveMessageFromClient();
-					this.cdirActive = true;
-					if(receivedMessage.length() > 3) {
-						String command = messageFromClient.substring(0, 4).toUpperCase();
-						switch(command) {
-						case "ACCT":
-							this.cmdACCT(receivedMessage);
-							break;
-						case "PASS":
-							this.cmdPASS(receivedMessage);
-							break;
-						default:
-							this.sendMessageToClient("- Error: command not recognized");							
-						}
-					} else {
-						this.sendMessageToClient("- Error: command not recognized");
-						this.minusSent = false;
-						this.cdirActive = false;
-						break;
-					}
-					this.cdirActive = false;
-					if(this.clientLoggedIn) {
-						this.currentDirectory = directory;
-						this.minusSent = false;
-						this.sendMessageToClient("!Changed working dir to "+ directory);
-						break;
-					}
-					if (this.minusSent) {
-						this.minusSent = false;
-						break;
-					}
-				}
-				
-			} catch (Exception e) {
-				this.currentUser = currUser;
-				this.clientLoggedIn= true;	
-				this.clientAccountValidated = true;
-				this.clientPasswordValidated = true;	
-			} finally {
-				this.currentUser = currUser;
-				this.clientLoggedIn= true;	
-				this.clientAccountValidated = true;
-				this.clientPasswordValidated = true;
-			}
-		}	
+			
+			
+		}
 		
 	}
 	
