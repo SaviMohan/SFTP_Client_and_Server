@@ -136,22 +136,23 @@ public class Server {
 		boolean fileAPP = false;
 		String fileName = fName;
 		String filePath = this.currentDirectory + "/" + fileName;
-		
+		System.out.println("test1");
 		if (writeMode.equals("APP")){
 			fileAPP = true;
 		} else if (writeMode.equals("NEW")) {
 			File f = new File(filePath);
-			
+			System.out.println("test2");
 			while(f.exists()&&f.isFile()) {
 				fileName = "n_" + fileName;
 				filePath = this.currentDirectory + "/" + fileName;
 				f = new File(filePath);
-				
+				System.out.println("test3");
 			}
 		}		
 		
 		BufferedWriter out = null;	
-		try {			
+		try {
+			System.out.println("test4");
 			out = new BufferedWriter(new FileWriter(filePath,fileAPP));		
 			char c = (char)this.inFromClient.read();			
 			long count=0;
@@ -161,8 +162,6 @@ public class Server {
 					count++;
 					if (c == '\r') {
 						c = (char)this.inFromClient.read();
-						c = (char)this.inFromClient.read();
-						count++;						
 						out.write(line);
 						out.newLine();
 						out.flush();
@@ -172,24 +171,26 @@ public class Server {
 						c = (char)this.inFromClient.read();
 					}					
 				}	
-				out.write(line);
 				out.flush();
-			} else {				
+			} else {
+				System.out.println("test5");
+				System.out.println(fileSize);
 				int bufSize = 0;
 				while(count < fileSize) {
 					bufSize++;
 					count++;
 					out.write(c);					
-					if (count == fileSize) {
-						break;
-					}
-					c = (char)this.inFromClient.read();					
+					System.out.println("test55");
+					c = (char)this.inFromClient.read();
+					System.out.println(count);
 					//FileWriter buffer is 1024 bytes in size, and char can be up to 2 bytes in size, so best to flush every time count reaches 512
-					if(bufSize == 512) {						
+					if(bufSize == 512) {
+						System.out.println("test6");
 						out.flush();
 						bufSize = 0;
 					}						
-				}				
+				}
+				System.out.println("test7");
 				out.flush();			
 			}	
 		}catch (IOException e){
@@ -214,11 +215,11 @@ public class Server {
 		    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		    
 		    receivedClientMessage = this.receiveMessageFromClient();
-		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 
+		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
 		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
 		    //try {
-		    	this.processIncomingMessage(receivedClientMessage.trim());
+		    	this.processIncomingMessage(receivedClientMessage);
 		    //}catch (IOException e) {
 		    	//tcpServer.sendMessageToClient("-Error processing your message");
 		    //}		    
@@ -233,7 +234,6 @@ public class Server {
 	private void processIncomingMessage(String messageFromClient) throws IOException {
 		if(messageFromClient.length() > 3) {
 			String command = messageFromClient.substring(0, 4).toUpperCase();
-			System.out.println(command);
 			switch(command) {
 			case "USER":
 				this.cmdUSER(messageFromClient);
@@ -269,7 +269,7 @@ public class Server {
 				this.cmdSTOR(messageFromClient);
 				break;
 			default:
-				this.sendMessageToClient("-Error: command not recognized");				
+				this.sendMessageToClient("- Error: command not recognized");				
 			}
 		} else {
 			this.sendMessageToClient("- Error: command not recognized");

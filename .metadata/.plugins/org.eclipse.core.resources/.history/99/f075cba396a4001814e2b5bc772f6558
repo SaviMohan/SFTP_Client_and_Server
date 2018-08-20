@@ -115,7 +115,6 @@ public class Client {
 			if(messageFromServer.substring(0,1).equals("-")) {
 				return;
 			}
-			System.out.println("Sending File");
 			this.sendFileToServer(f);
 			messageFromServer = this.receiveMessageFromServer();
 			System.out.println("FROM SERVER: " + messageFromServer);

@@ -98,7 +98,7 @@ public class Client {
 		
 		String fileName = (messagetoServer+"          ").substring(9).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
-		System.out.println(messagetoServer);////
+		System.out.println(filePath);////
 		File f = new File(filePath);
 		if(f.exists()&&f.isFile()) {
 			this.sendMessageToServer(messagetoServer); 
@@ -115,7 +115,6 @@ public class Client {
 			if(messageFromServer.substring(0,1).equals("-")) {
 				return;
 			}
-			System.out.println("Sending File");
 			this.sendFileToServer(f);
 			messageFromServer = this.receiveMessageFromServer();
 			System.out.println("FROM SERVER: " + messageFromServer);
@@ -167,30 +166,35 @@ public class Client {
 	}
 	
 	private void sendFileToServer(File fileToSend) throws IOException {
-		InputStream in;		
+		InputStream in;
+		System.out.println("test1");
 		if (mappingType.equals("A")) {
 			String fileLines = "";
 			String fileLine = "";
 			FileReader fr = new FileReader(fileToSend);
 	        BufferedReader br = new BufferedReader(fr);
 	        while ((fileLine = br.readLine()) != null) {	           
-	            fileLines += (fileLine + "\r\n");	            
+	            fileLines += (fileLine + "\r\n");
 	        }
 	        fr.close();
-	        br.close();			
+	        br.close();
+			
 			
 			in = new ByteArrayInputStream(fileLines.getBytes(StandardCharsets.US_ASCII));
 		} else {
-			in = new FileInputStream(fileToSend);			
+			in = new FileInputStream(fileToSend);
+			System.out.println("test2");
 		}
-		int count;		
-		byte[] buffer = new byte[1];		
+		int count;
+		byte[] buffer = new byte[8192]; 
+		System.out.println("test3");
 		while ((count = in.read(buffer)) > -1)
 		{
-			this.outToServer.write(buffer, 0, count);			
-		}		
+			this.outToServer.write(buffer, 0, count);
+			System.out.println(count);
+		}
 		in.close();
-		
+		System.out.println("test5");
 	}
 	
 	private void receiveFileFromServer(String fName, long fileSize, String writeMode) throws IOException {

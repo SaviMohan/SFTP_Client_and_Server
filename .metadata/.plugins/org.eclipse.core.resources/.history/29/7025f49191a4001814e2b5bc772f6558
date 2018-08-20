@@ -162,7 +162,7 @@ public class Server {
 					if (c == '\r') {
 						c = (char)this.inFromClient.read();
 						c = (char)this.inFromClient.read();
-						count++;						
+						count++;
 						out.write(line);
 						out.newLine();
 						out.flush();
@@ -172,7 +172,6 @@ public class Server {
 						c = (char)this.inFromClient.read();
 					}					
 				}	
-				out.write(line);
 				out.flush();
 			} else {				
 				int bufSize = 0;
@@ -214,11 +213,11 @@ public class Server {
 		    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		    
 		    receivedClientMessage = this.receiveMessageFromClient();
-		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 
+		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
 		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
 		    //try {
-		    	this.processIncomingMessage(receivedClientMessage.trim());
+		    	this.processIncomingMessage(receivedClientMessage);
 		    //}catch (IOException e) {
 		    	//tcpServer.sendMessageToClient("-Error processing your message");
 		    //}		    
@@ -233,7 +232,6 @@ public class Server {
 	private void processIncomingMessage(String messageFromClient) throws IOException {
 		if(messageFromClient.length() > 3) {
 			String command = messageFromClient.substring(0, 4).toUpperCase();
-			System.out.println(command);
 			switch(command) {
 			case "USER":
 				this.cmdUSER(messageFromClient);
@@ -269,7 +267,7 @@ public class Server {
 				this.cmdSTOR(messageFromClient);
 				break;
 			default:
-				this.sendMessageToClient("-Error: command not recognized");				
+				this.sendMessageToClient("- Error: command not recognized");				
 			}
 		} else {
 			this.sendMessageToClient("- Error: command not recognized");

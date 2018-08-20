@@ -98,7 +98,7 @@ public class Client {
 		
 		String fileName = (messagetoServer+"          ").substring(9).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
-		System.out.println(messagetoServer);////
+		System.out.println(filePath);////
 		File f = new File(filePath);
 		if(f.exists()&&f.isFile()) {
 			this.sendMessageToServer(messagetoServer); 
@@ -115,7 +115,6 @@ public class Client {
 			if(messageFromServer.substring(0,1).equals("-")) {
 				return;
 			}
-			System.out.println("Sending File");
 			this.sendFileToServer(f);
 			messageFromServer = this.receiveMessageFromServer();
 			System.out.println("FROM SERVER: " + messageFromServer);
@@ -174,7 +173,8 @@ public class Client {
 			FileReader fr = new FileReader(fileToSend);
 	        BufferedReader br = new BufferedReader(fr);
 	        while ((fileLine = br.readLine()) != null) {	           
-	            fileLines += (fileLine + "\r\n");	            
+	            fileLines += (fileLine + "\r\n");
+	            System.out.println(fileLine);
 	        }
 	        fr.close();
 	        br.close();			

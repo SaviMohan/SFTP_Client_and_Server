@@ -214,7 +214,7 @@ public class Server {
 		    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		    
 		    receivedClientMessage = this.receiveMessageFromClient();
-		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 
+		    System.out.println("FROM CLIENT: " + receivedClientMessage); 
 		    
 		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
 		    //try {
