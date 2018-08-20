@@ -98,7 +98,6 @@ public class Client {
 		
 		String fileName = (messagetoServer+"          ").substring(9).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
-		System.out.println(filePath);////
 		File f = new File(filePath);
 		if(f.exists()&&f.isFile()) {
 			this.sendMessageToServer(messagetoServer); 

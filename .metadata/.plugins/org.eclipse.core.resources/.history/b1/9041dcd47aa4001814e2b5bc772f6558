@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class Client {
 	private BufferedReader inFromServer;
 	private DataOutputStream outToServer;
-	private String currentDirectory = "src/SFTPClient/public";
+	private String currentDirectory = "src/SFTPClient/public/storage";
 	private String mappingType = "B";
 	private Socket localConnectionSocket;
 	
@@ -94,34 +94,8 @@ public class Client {
 	    }
 	}
 	
-	private void cmdSTOR(String messagetoServer) throws IOException {
+	private void cmdSTOR(String messagetoServer) {
 		
-		String fileName = (messagetoServer+"          ").substring(9).trim();//
-		String filePath = this.currentDirectory + "/" + fileName;
-		System.out.println(filePath);////
-		File f = new File(filePath);
-		if(f.exists()&&f.isFile()) {
-			this.sendMessageToServer(messagetoServer); 
-			String messageFromServer = this.receiveMessageFromServer();
-			System.out.println("FROM SERVER: " + messageFromServer);
-			if(messageFromServer.substring(0,1).equals("-")) {
-				return;
-			}
-			System.out.println("TO SERVER:SIZE "+ Long.toString(f.length()));
-			
-			this.sendMessageToServer("SIZE "+ Long.toString(f.length()));
-			messageFromServer = this.receiveMessageFromServer();
-			System.out.println("FROM SERVER: " + messageFromServer);
-			if(messageFromServer.substring(0,1).equals("-")) {
-				return;
-			}
-			this.sendFileToServer(f);
-			messageFromServer = this.receiveMessageFromServer();
-			System.out.println("FROM SERVER: " + messageFromServer);
-			
-		} else {
-			System.out.println("No such file exists in client's directory");
-		}
 	}
 	
 	private void cmdDONE(String messagetoServer) throws IOException {

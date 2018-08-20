@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class Client {
 	private BufferedReader inFromServer;
 	private DataOutputStream outToServer;
-	private String currentDirectory = "src/SFTPClient/public";
+	private String currentDirectory = "src/SFTPClient/public/storage";
 	private String mappingType = "B";
 	private Socket localConnectionSocket;
 	
@@ -38,21 +38,14 @@ public class Client {
     			case "STOR":
     				this.cmdSTOR(messagetoServer);
     				break;
-    			case "DONE":
-    				this.cmdDONE(messagetoServer);
-    				break;
-    			case "TYPE":
-    				this.cmdTYPE(messagetoServer);
-    				break;	
     			default:
-    				this.sendMessageToServer(messagetoServer); 
-    				messageFromServer = this.receiveMessageFromServer();
-    	                
-    				System.out.println("FROM SERVER: " + messageFromServer); 
+    				this.sendMessageToServer(messagetoServer);    	
     			} 
             	            
                 
-               
+                messageFromServer = this.receiveMessageFromServer();
+                
+                System.out.println("FROM SERVER: " + messageFromServer); 
                 
                 //clientSocket.close();//////////////// 
             }
@@ -65,87 +58,12 @@ public class Client {
         
 	}
 	
-	private void cmdRETR(String messagetoServer) throws IOException {
-		this.sendMessageToServer(messagetoServer); 
-		String fileName = (messagetoServer+"      ").substring(5).trim();//
-		String messageFromServer = this.receiveMessageFromServer();
-		long fileSize = 0;
-		try { 
-			fileSize = Long.parseLong(messageFromServer); 	
-			System.out.println("FROM SERVER: " + messageFromServer);
-	    } catch(NumberFormatException e) { 
-	    	System.out.println("FROM SERVER: " + messageFromServer);
-	    } catch(NullPointerException e) {
-	    	System.out.println("FROM SERVER: " + messageFromServer);
-	    }finally {
-	    	File dir = new File(this.currentDirectory);
-			long availableFolderSpace = dir.getUsableSpace();
-			if (fileSize < availableFolderSpace) {
-				System.out.println("TO CLIENT: SEND");
-				this.sendMessageToServer("SEND"); 
-				this.receiveFileFromServer(fileName, fileSize, "NEW");
-				System.out.println("FILE RECEIVED");
-			} else {
-				System.out.println("TO CLIENT: STOP");
-				this.sendMessageToServer("STOP"); 
-				messageFromServer = this.receiveMessageFromServer();
-				System.out.println("FROM SERVER: " + messageFromServer);
-			}
-	    }
-	}
-	
-	private void cmdSTOR(String messagetoServer) throws IOException {
-		
-		String fileName = (messagetoServer+"          ").substring(9).trim();//
-		String filePath = this.currentDirectory + "/" + fileName;
-		System.out.println(filePath);////
-		File f = new File(filePath);
-		if(f.exists()&&f.isFile()) {
-			this.sendMessageToServer(messagetoServer); 
-			String messageFromServer = this.receiveMessageFromServer();
-			System.out.println("FROM SERVER: " + messageFromServer);
-			if(messageFromServer.substring(0,1).equals("-")) {
-				return;
-			}
-			System.out.println("TO SERVER:SIZE "+ Long.toString(f.length()));
-			
-			this.sendMessageToServer("SIZE "+ Long.toString(f.length()));
-			messageFromServer = this.receiveMessageFromServer();
-			System.out.println("FROM SERVER: " + messageFromServer);
-			if(messageFromServer.substring(0,1).equals("-")) {
-				return;
-			}
-			this.sendFileToServer(f);
-			messageFromServer = this.receiveMessageFromServer();
-			System.out.println("FROM SERVER: " + messageFromServer);
-			
-		} else {
-			System.out.println("No such file exists in client's directory");
-		}
-	}
-	
-	private void cmdDONE(String messagetoServer) throws IOException {
-		this.sendMessageToServer(messagetoServer); 
-		String messageFromServer = this.receiveMessageFromServer();
-		System.out.println("FROM SERVER: " + messageFromServer); 
-		if(messageFromServer.equals("+localhost connection closing")) {
-			this.localConnectionSocket.close();
-		}
+	private void cmdRETR(String messageFromClient) {
 		
 	}
 	
-	private void cmdTYPE(String messagetoServer) throws IOException {
-		String type = (messagetoServer+"      ").substring(5).trim().toUpperCase();//
-		if (type.equals("A")) {			
-			this.mappingType = "A";
-		} else if (type.equals("B")) {			
-			this.mappingType = "B";
-		} else if (type.equals("C")) {			
-			this.mappingType = "C";
-		} 
-		this.sendMessageToServer(messagetoServer); 
-		String messageFromServer = this.receiveMessageFromServer();
-		System.out.println("FROM SERVER: " + messageFromServer); 
+	private void cmdSTOR(String messageFromClient) {
+		
 	}
 	
 	private void sendMessageToServer(String message) throws IOException {		

@@ -36,7 +36,7 @@ public class Server {
 	private Socket localConnectionSocket;
 	
 	Server(Socket connectionSocket) throws IOException{
-		this.currentUser = Arrays.asList("", "", "");
+		this.currentUser = Arrays.asList(" ", " ", " ");
 		this.localConnectionSocket = connectionSocket;
 		this.inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
 		this.outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
@@ -53,7 +53,6 @@ public class Server {
 	
 	private void getUserData() throws IOException {
 		userList = new ArrayList<List<String>>();
-		userNames = new ArrayList<String>();
 		// open the user data file
 		FileInputStream fstream = new FileInputStream(userFile);
 		
@@ -64,8 +63,8 @@ public class Server {
 		//read each line of user data file
 		while ((userLine = br.readLine()) != null)   {
 			List<String> userDetails = Arrays.asList(userLine.split(",",-1));
-			userList.add(userDetails);			
-			userNames.add(userDetails.get(0));
+			userList.add(userDetails);
+			//userNames.add(userDetails.get(0));
 		}
 
 		//close the input buffer stream
@@ -272,7 +271,7 @@ public class Server {
 		for (List<String> user : userList) {
 			System.out.println(user.get(0));
 			if (user.get(0).trim().equals(userid)) {		    	
-		    	if (user.get(1).equals("") && user.get(2).equals("")) {
+		    	if (user.get(1).equals(" ") && user.get(2).equals(" ")) {
 		    		this.sendMessageToClient("!"+userid+" logged in");
 		    		this.clientLoggedIn =true;		    			    		
 		    	} else {
@@ -287,13 +286,13 @@ public class Server {
 	
 	private void cmdACCT(String messageFromClient) {
 		String account = messageFromClient.substring(5).trim();//
-		if (!this.currentUser.get(0).equals("")) {
-			if(this.currentUser.get(1).equals("") && this.currentUser.get(2).equals("")) {
+		if (!this.currentUser.get(0).equals(" ")) {
+			if(this.currentUser.get(1).equals(" ") && this.currentUser.get(2).equals(" ")) {
 				this.sendMessageToClient("!Account valid, logged-in");
 				this.clientLoggedIn= true;	
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;				
-			} else if (this.currentUser.get(1).equals("") && !this.currentUser.get(2).equals("")) {
+			} else if (this.currentUser.get(1).equals(" ") && !this.currentUser.get(2).equals(" ")) {
 				if (this.clientPasswordValidated) {
 					this.sendMessageToClient("!Account valid, logged-in");
 					this.clientLoggedIn =true;
@@ -301,12 +300,12 @@ public class Server {
 					this.sendMessageToClient("+Account valid, send password");
 				}				
 				this.clientAccountValidated = true;
-			} else if (this.currentUser.get(1).equals(account) && this.currentUser.get(2).equals("")) {
+			} else if (this.currentUser.get(1).equals(account) && this.currentUser.get(2).equals(" ")) {
 				this.sendMessageToClient("!Account valid, logged-in");
 				this.clientLoggedIn =true;
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;	
-			} else if (this.currentUser.get(1).equals(account) && !this.currentUser.get(2).equals("")) {
+			} else if (this.currentUser.get(1).equals(account) && !this.currentUser.get(2).equals(" ")) {
 				if (this.clientPasswordValidated) {
 					this.sendMessageToClient("!Account valid, logged-in");
 					this.clientLoggedIn =true;
@@ -325,13 +324,13 @@ public class Server {
 	
 	private void cmdPASS(String messageFromClient) {
 		String password = messageFromClient.substring(5).trim();//
-		if (!this.currentUser.get(0).equals("")) {
-			if(this.currentUser.get(1).equals("") && this.currentUser.get(2).equals("")) {
+		if (!this.currentUser.get(0).equals(" ")) {
+			if(this.currentUser.get(1).equals(" ") && this.currentUser.get(2).equals(" ")) {
 				this.sendMessageToClient("!Password valid, logged-in");
 				this.clientLoggedIn= true;	
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;				
-			} else if (this.currentUser.get(2).equals("") && !this.currentUser.get(1).equals("")) {
+			} else if (this.currentUser.get(2).equals(" ") && !this.currentUser.get(1).equals(" ")) {
 				if (this.clientAccountValidated) {
 					this.sendMessageToClient("!Password valid, logged-in");
 					this.clientLoggedIn =true;
@@ -339,12 +338,12 @@ public class Server {
 					this.sendMessageToClient("+Password valid, send account");
 				}				
 				this.clientPasswordValidated = true;
-			} else if (this.currentUser.get(2).equals(password) && this.currentUser.get(1).equals("")) {
+			} else if (this.currentUser.get(2).equals(password) && this.currentUser.get(1).equals(" ")) {
 				this.sendMessageToClient("!Password valid, logged-in");
 				this.clientLoggedIn =true;
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;	
-			} else if (this.currentUser.get(2).equals(password) && !this.currentUser.get(1).equals("")) {
+			} else if (this.currentUser.get(2).equals(password) && !this.currentUser.get(1).equals(" ")) {
 				if (this.clientAccountValidated) {
 					this.sendMessageToClient("!Password valid, logged-in");
 					this.clientLoggedIn =true;
