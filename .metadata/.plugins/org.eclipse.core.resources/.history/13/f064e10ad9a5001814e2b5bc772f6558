@@ -226,7 +226,7 @@ public class Client {
 	 * @throws IOException
 	 */
 	private void receiveFileFromServer(String fName, long fileSize, String writeMode) throws IOException {
-		boolean fileAPP = false; //boolean that determines whether to append the received files contents to an existing file of the same name
+		boolean fileAPP = false; //boolean that determines whether to append to the received files contents to an existing file of the same name
 		String fileName = fName;
 		String filePath = this.currentDirectory + "/" + fileName;
 		if (writeMode.equals("APP")){
@@ -234,7 +234,7 @@ public class Client {
 		} else if (writeMode.equals("NEW")) {
 			File f = new File(filePath);
 			//if in NEW mode and there is already a file by the same name already in the local directory
-			//then add "n_" to the beginning of the file name of the new file to write
+			//then add "n_" to the beginning of the new file to write
 			while(f.exists()&&f.isFile()) { 
 				fileName = "n_" + fileName;
 				filePath = this.currentDirectory + "/" + fileName;

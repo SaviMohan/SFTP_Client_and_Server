@@ -19,7 +19,6 @@ public class Client {
 	 * @throws IOException
 	 */
 	Client(Socket connectionSocket) throws IOException{
-		//initialize instance variables
 		this.localConnectionSocket = connectionSocket;
 		this.outToServer = new DataOutputStream(connectionSocket.getOutputStream());         
         this.inFromServer = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
@@ -27,16 +26,16 @@ public class Client {
         String messagetoServer; 
         String messageFromServer; 
 	
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); //initialize buffer 
+        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));       
         
         System.out.println(this.receiveMessageFromServer());
         try {
-        	while(true) { //continuously wait for commands from the user
+        	while(true) {
             	
             	messagetoServer = inFromUser.readLine()+"         ";   
             	
             	String command = messagetoServer.substring(0, 4).toUpperCase();
-    			switch(command) {//call the appropriate function based on what the user command is
+    			switch(command) {
     			
     			case "RETR":
     				this.cmdRETR(messagetoServer);
@@ -76,7 +75,7 @@ public class Client {
 		String messageFromServer = this.receiveMessageFromServer();
 		long fileSize = 0;
 		try { 
-			fileSize = Long.parseLong(messageFromServer); 	//determine file size of the file to be retrieved from server
+			fileSize = Long.parseLong(messageFromServer); 	
 			System.out.println("FROM SERVER: " + messageFromServer);
 	    } catch(NumberFormatException e) { 
 	    	System.out.println("FROM SERVER: " + messageFromServer);
@@ -85,14 +84,14 @@ public class Client {
 	    }finally {
 	    	File dir = new File(this.currentDirectory);
 			long availableFolderSpace = dir.getUsableSpace();
-			if (fileSize < availableFolderSpace) {//determine if we have enough space to store the file locally
+			if (fileSize < availableFolderSpace) {
 				System.out.println("TO SERVER: SEND");
 				this.sendMessageToServer("SEND"); 
-				this.receiveFileFromServer(fileName, fileSize, "NEW");//retrieve the file from the server and store locally.
+				this.receiveFileFromServer(fileName, fileSize, "NEW");
 				System.out.println("FILE RECEIVED");
 			} else {
 				System.out.println("TO SERVER: STOP");
-				this.sendMessageToServer("STOP"); //if not enough space tell the server to not send the file
+				this.sendMessageToServer("STOP"); 
 				messageFromServer = this.receiveMessageFromServer();
 				System.out.println("FROM SERVER: " + messageFromServer);
 			}
@@ -107,27 +106,27 @@ public class Client {
 		String fileName = (messagetoServer+"          ").substring(9).trim();
 		String filePath = this.currentDirectory + "/" + fileName;		
 		File f = new File(filePath);
-		if(f.exists()&&f.isFile()) {//determine if file we are trying to send actually exists
+		if(f.exists()&&f.isFile()) {
 			this.sendMessageToServer(messagetoServer); 
 			String messageFromServer = this.receiveMessageFromServer();
 			System.out.println("FROM SERVER: " + messageFromServer);
 			if(messageFromServer.substring(0,1).equals("-")) {
-				return;//abort the STOR sequence if the server returns a '-'
+				return;
 			}
 			System.out.println("TO SERVER:SIZE "+ Long.toString(f.length()));
 			
-			this.sendMessageToServer("SIZE "+ Long.toString(f.length()));//send the size of the file to the server
+			this.sendMessageToServer("SIZE "+ Long.toString(f.length()));
 			messageFromServer = this.receiveMessageFromServer();
 			System.out.println("FROM SERVER: " + messageFromServer);
 			if(messageFromServer.substring(0,1).equals("-")) {
 				return;
 			}
 			System.out.println("Sending File");
-			this.sendFileToServer(f);//send file to server
+			this.sendFileToServer(f);
 			messageFromServer = this.receiveMessageFromServer();
 			System.out.println("FROM SERVER: " + messageFromServer);
 			
-		} else {//if the file we are trying to send doesn't exist, then abort STOR sequence
+		} else {
 			System.out.println("No such file exists in client's directory");
 		}
 	}
@@ -141,7 +140,7 @@ public class Client {
 		String messageFromServer = this.receiveMessageFromServer();
 		System.out.println("FROM SERVER: " + messageFromServer); 
 		if(messageFromServer.contains("+localhost connection closing")) {
-			System.out.println("Client side connection closed");//if the server closes it connection with the client the client will also close its socket
+			System.out.println("Client side connection closed");
 			this.localConnectionSocket.close();
 		}
 		
@@ -152,7 +151,7 @@ public class Client {
 	 * @throws IOException
 	 */
 	private void cmdTYPE(String messagetoServer) throws IOException {
-		String type = (messagetoServer+"      ").substring(5).trim().toUpperCase();//extract the type value from the user input
+		String type = (messagetoServer+"      ").substring(5).trim().toUpperCase();//
 		if (type.equals("A")) {			
 			this.mappingType = "A";
 		} else if (type.equals("B")) {			
@@ -170,7 +169,7 @@ public class Client {
 	 * @throws IOException
 	 */
 	private void sendMessageToServer(String message) throws IOException {		
-		this.outToServer.writeBytes(message+'\0');//appends the null character to the message to send, as required by the protocol		 
+		this.outToServer.writeBytes(message+'\0');		 
 	}
 	/**
 	 * Receives a message from the server
@@ -181,12 +180,12 @@ public class Client {
 		char c = 'a';
         String message = ""; 
         while(c != '\0') {
-        	c = (char) this.inFromServer.read();//reads one char at a time until null character detected
+        	c = (char) this.inFromServer.read();
 			if (c != '\0') {
         		message += c;
         	}        	
         }
-        return message;//returns all the received chars as one string
+        return message;
 	}
 	/**
 	 * Sends the specified file to the server
@@ -195,7 +194,7 @@ public class Client {
 	 */
 	private void sendFileToServer(File fileToSend) throws IOException {
 		InputStream in;		
-		if (mappingType.equals("A")) { //if in ascii mode, convert all line endings to CRLF
+		if (mappingType.equals("A")) {
 			String fileLines = "";
 			String fileLine = "";
 			FileReader fr = new FileReader(fileToSend);
@@ -214,7 +213,7 @@ public class Client {
 		byte[] buffer = new byte[1];		
 		while ((count = in.read(buffer)) > -1)
 		{
-			this.outToServer.write(buffer, 0, count);//send file one byte at a time			
+			this.outToServer.write(buffer, 0, count);			
 		}		
 		in.close();		
 	}
@@ -226,16 +225,15 @@ public class Client {
 	 * @throws IOException
 	 */
 	private void receiveFileFromServer(String fName, long fileSize, String writeMode) throws IOException {
-		boolean fileAPP = false; //boolean that determines whether to append the received files contents to an existing file of the same name
+		boolean fileAPP = false;
 		String fileName = fName;
 		String filePath = this.currentDirectory + "/" + fileName;
 		if (writeMode.equals("APP")){
 			fileAPP = true;
 		} else if (writeMode.equals("NEW")) {
 			File f = new File(filePath);
-			//if in NEW mode and there is already a file by the same name already in the local directory
-			//then add "n_" to the beginning of the file name of the new file to write
-			while(f.exists()&&f.isFile()) { 
+			
+			while(f.exists()&&f.isFile()) {
 				fileName = "n_" + fileName;
 				filePath = this.currentDirectory + "/" + fileName;
 				f = new File(filePath);
@@ -252,12 +250,12 @@ public class Client {
 			if (this.mappingType.equals("A")) {				
 				while(count < fileSize) {
 					count++;
-					if (c == '\r') {//remove the \r\n and replace with system specific line ending
+					if (c == '\r') {
 						c = (char)this.inFromServer.read();
 						c = (char)this.inFromServer.read();
 						count++;	
 						out.write(line);
-						out.newLine();//this newline character is system dependent
+						out.newLine();
 						out.flush();
 						line = "";
 					} else {
@@ -265,7 +263,7 @@ public class Client {
 						c = (char)this.inFromServer.read();
 					}					
 				}	
-				out.write(line);//write to file one line at a time
+				out.write(line);
 				out.newLine();
 				out.flush();
 			} else {
@@ -273,7 +271,7 @@ public class Client {
 				while(count < fileSize) {
 					count++;
 					bufSize++;
-					out.write(c);//write to file one char at a time
+					out.write(c);
 					if (count == fileSize) {
 						break;
 					}

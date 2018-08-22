@@ -420,11 +420,11 @@ public class Server {
 	 */
 	private void cmdTYPE(String messageFromClient) {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		
-		String type = messageFromClient.substring(5).trim().toUpperCase();//extract the type from the client message
+		String type = messageFromClient.substring(5).trim().toUpperCase();
 		if (type.equals("A")) {
 			this.sendMessageToClient("+Using Ascii mode");
 			this.mappingType = "A";
@@ -446,7 +446,7 @@ public class Server {
 	 */
 	private void cmdLIST(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		String listType = messageFromClient.substring(5,6).trim().toUpperCase();
@@ -456,7 +456,7 @@ public class Server {
 			
 			File f = new File(directory);
 			if(!f.isDirectory()) {
-				this.sendMessageToClient("-invalid file directory");//if invalid file directory specified, abort command
+				this.sendMessageToClient("-invalid file directory");
 				return;
 			}		
 		} else {
@@ -503,7 +503,7 @@ public class Server {
 	 */
 	private void cmdCDIR(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		
@@ -591,7 +591,7 @@ public class Server {
 	 */
 	private void cmdKILL(String messageFromClient) {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		
@@ -615,7 +615,7 @@ public class Server {
 	 */
 	private void cmdNAME(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		String fileName = messageFromClient.substring(5).trim();//
@@ -660,7 +660,7 @@ public class Server {
 	 */
 	private void cmdDONE(String messageFromClient) {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		
@@ -682,7 +682,7 @@ public class Server {
 	 */
 	private void cmdRETR(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		String fileName = messageFromClient.substring(5).trim();//
@@ -725,7 +725,7 @@ public class Server {
 	 */
 	private void cmdSTOR(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		String storeSpec = messageFromClient.substring(5,8).trim().toUpperCase();//

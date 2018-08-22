@@ -73,8 +73,8 @@ public class Server {
 		//read each line of user data file
 		while ((userLine = br.readLine()) != null)   {
 			List<String> userDetails = Arrays.asList(userLine.split(",",-1));
-			userList.add(userDetails);	//userList contains all users and their specific accounts and passwords		
-			userNames.add(userDetails.get(0));	//userNames contains just the list of users
+			userList.add(userDetails);			
+			userNames.add(userDetails.get(0));
 		}
 
 		//close the input buffer stream
@@ -94,7 +94,7 @@ public class Server {
 			if (this.cdirActive && message.substring(0,1).equals("!")) {
 				//don't send any login successful messages while the CDIR command is active
 			} else {
-				this.outToClient.writeBytes(message+'\0');//appends null character to end of message, in keeping with the protocol
+				this.outToClient.writeBytes(message+'\0');
 			}
 			
 		} catch (IOException e) {
@@ -110,14 +110,14 @@ public class Server {
 		char c = 'a';
         String message = ""; 
         while(c != '\0') {        	
-			c = (char) this.inFromClient.read();//read one char at a time until null character detected
+			c = (char) this.inFromClient.read();
 			
         	if (c != '\0') {
         		message += c;
         	}
         	
         }
-        return message;//return all received chars as one string
+        return message;
 	}
 	/**
 	 * Sends the input file to the client by using a InputStream to read the file's bytes 
@@ -133,7 +133,7 @@ public class Server {
 			FileReader fr = new FileReader(fileToSend);
 	        BufferedReader br = new BufferedReader(fr);
 	        while ((fileLine = br.readLine()) != null) {	           
-	            fileLines += (fileLine + "\r\n");//convert all line endings to CRLF if in ASCII mode
+	            fileLines += (fileLine + "\r\n");
 	        }
 	        fr.close();
 	        br.close();			
@@ -146,7 +146,7 @@ public class Server {
 		byte[] buffer = new byte[1]; 
 		while ((count = in.read(buffer)) > -1)
 		{
-			this.outToClient.write(buffer, 0, count);//send file one byte at a time
+			this.outToClient.write(buffer, 0, count);
 		}
 		in.close();
 		
@@ -160,7 +160,7 @@ public class Server {
 	 * @throws IOException
 	 */
 	private void receiveFileFromClient(String fName, long fileSize, String writeMode) throws IOException {
-		boolean fileAPP = false; //boolean that determines whether to append the received files contents to an existing file of the same name
+		boolean fileAPP = false;
 		String fileName = fName;
 		String filePath = this.currentDirectory + "/" + fileName;
 		
@@ -168,8 +168,7 @@ public class Server {
 			fileAPP = true;
 		} else if (writeMode.equals("NEW")) {
 			File f = new File(filePath);
-			//if in NEW mode and there is already a file by the same name already in the local directory
-			//then add "n_" to the beginning of the file name of the new file to write
+			
 			while(f.exists()&&f.isFile()) {
 				fileName = "n_" + fileName;
 				filePath = this.currentDirectory + "/" + fileName;
@@ -187,12 +186,12 @@ public class Server {
 			if (this.mappingType.equals("A")) {				
 				while(count < fileSize) {
 					count++;
-					if (c == '\r') {//remove the \r\n and replace with system specific line ending
+					if (c == '\r') {
 						c = (char)this.inFromClient.read();
 						c = (char)this.inFromClient.read();
 						count++;						
 						out.write(line);
-						out.newLine();//this newline character is system dependent
+						out.newLine();
 						out.flush();
 						line = "";
 					} else {
@@ -200,7 +199,7 @@ public class Server {
 						c = (char)this.inFromClient.read();
 					}					
 				}	
-				out.write(line);//write to file one line at a time
+				out.write(line);
 				out.newLine();
 				out.flush();
 			} else {				
@@ -208,7 +207,7 @@ public class Server {
 				while(count < fileSize) {
 					bufSize++;
 					count++;
-					out.write(c); //write to file one char at a time					
+					out.write(c);					
 					if (count == fileSize) {
 						break;
 					}
@@ -242,7 +241,7 @@ public class Server {
 		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 		    
 		    
 		    try {
-		    	this.processIncomingMessage(receivedClientMessage.trim());//call this function each time we receive a message from the client
+		    	this.processIncomingMessage(receivedClientMessage.trim());
 		    }catch (Exception e) {
 		    	this.sendMessageToClient("-Error processing your message");
 		    }			    
@@ -256,7 +255,7 @@ public class Server {
 	 */
 	private void processIncomingMessage(String messageFromClient) throws IOException {
 		if(messageFromClient.length() > 3) {
-			String command = messageFromClient.substring(0, 4).toUpperCase(); //extract command name from input message
+			String command = messageFromClient.substring(0, 4).toUpperCase();
 			System.out.println(command);
 			switch(command) {
 			case "USER":
@@ -309,10 +308,10 @@ public class Server {
 	private void cmdUSER(String messageFromClient) {
 		String userid = messageFromClient.substring(5).trim();
 		System.out.println(userid);
-		for (List<String> user : userList) {//loop through list of users and find the one that matches and retrieve details.
+		for (List<String> user : userList) {
 			System.out.println(user.get(0));
 			if (user.get(0).trim().equals(userid)) {		    	
-		    	if (user.get(1).equals("") && user.get(2).equals("")) {//if the input user doesn't need an account or a password, then log them in straight away
+		    	if (user.get(1).equals("") && user.get(2).equals("")) {
 		    		this.sendMessageToClient("!"+userid+" logged in");
 		    		this.clientLoggedIn =true;		    			    		
 		    	} else {
@@ -336,8 +335,8 @@ public class Server {
 	private void cmdACCT(String messageFromClient) {
 		String account = messageFromClient.substring(5).trim();
 		
-		if (!this.currentUser.get(0).equals("")) {//checks if the userid has been entered or not			
-			if(this.currentUser.get(1).equals("") && this.currentUser.get(2).equals("")) {//if user doesn't have an account or password, log them in straight away				
+		if (!this.currentUser.get(0).equals("")) {			
+			if(this.currentUser.get(1).equals("") && this.currentUser.get(2).equals("")) {				
 				this.sendMessageToClient("!Account valid, logged-in");
 				this.clientLoggedIn= true;	
 				this.clientAccountValidated = true;
@@ -356,15 +355,15 @@ public class Server {
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;				
 			} else if (this.currentUser.get(1).equals(account) && !this.currentUser.get(2).equals("")) {
-				if (this.clientPasswordValidated) {//if their account is valid and their password has already been validated then log them in
+				if (this.clientPasswordValidated) {
 					this.sendMessageToClient("!Account valid, logged-in");
 					this.clientLoggedIn =true;					
-				} else {//if their password hasn't been validated then tell them to send the password
+				} else {
 					this.sendMessageToClient("+Account valid, send password");
 				}				
 				this.clientAccountValidated = true;
 			} else {
-				this.sendMessageToClient("-Invalid account");//return this message if they enter an invalid account				
+				this.sendMessageToClient("-Invalid account");				
 			}			
 		} else {			
 			this.sendMessageToClient("-Please enter userID first");
@@ -378,8 +377,8 @@ public class Server {
 	 */
 	private void cmdPASS(String messageFromClient) {
 		String password = messageFromClient.substring(5).trim();
-		if (!this.currentUser.get(0).equals("")) {//checks if the userid has been entered or not
-			if(this.currentUser.get(1).equals("") && this.currentUser.get(2).equals("")) {//if user doesn't have an account or password, log them in straight away
+		if (!this.currentUser.get(0).equals("")) {
+			if(this.currentUser.get(1).equals("") && this.currentUser.get(2).equals("")) {
 				this.sendMessageToClient("!Password valid, logged-in");
 				this.clientLoggedIn= true;	
 				this.clientAccountValidated = true;
@@ -398,11 +397,11 @@ public class Server {
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;	
 			} else if (this.currentUser.get(2).equals(password) && !this.currentUser.get(1).equals("")) {
-				if (this.clientAccountValidated) {//if their password is valid and their account has already been validated then log them in
+				if (this.clientAccountValidated) {
 					this.sendMessageToClient("!Password valid, logged-in");
 					this.clientLoggedIn =true;
 				} else {
-					this.sendMessageToClient("+Password valid, send account");//otherwise tell them to send their account
+					this.sendMessageToClient("+Password valid, send account");
 				}				
 				this.clientPasswordValidated = true;
 			} else {
@@ -420,11 +419,11 @@ public class Server {
 	 */
 	private void cmdTYPE(String messageFromClient) {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		
-		String type = messageFromClient.substring(5).trim().toUpperCase();//extract the type from the client message
+		String type = messageFromClient.substring(5).trim().toUpperCase();
 		if (type.equals("A")) {
 			this.sendMessageToClient("+Using Ascii mode");
 			this.mappingType = "A";
@@ -446,7 +445,7 @@ public class Server {
 	 */
 	private void cmdLIST(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		String listType = messageFromClient.substring(5,6).trim().toUpperCase();
@@ -456,7 +455,7 @@ public class Server {
 			
 			File f = new File(directory);
 			if(!f.isDirectory()) {
-				this.sendMessageToClient("-invalid file directory");//if invalid file directory specified, abort command
+				this.sendMessageToClient("-invalid file directory");
 				return;
 			}		
 		} else {
@@ -503,7 +502,7 @@ public class Server {
 	 */
 	private void cmdCDIR(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		
@@ -591,7 +590,7 @@ public class Server {
 	 */
 	private void cmdKILL(String messageFromClient) {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		
@@ -615,7 +614,7 @@ public class Server {
 	 */
 	private void cmdNAME(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		String fileName = messageFromClient.substring(5).trim();//
@@ -660,7 +659,7 @@ public class Server {
 	 */
 	private void cmdDONE(String messageFromClient) {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		
@@ -682,7 +681,7 @@ public class Server {
 	 */
 	private void cmdRETR(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		String fileName = messageFromClient.substring(5).trim();//
@@ -725,7 +724,7 @@ public class Server {
 	 */
 	private void cmdSTOR(String messageFromClient) throws IOException {
 		if(!this.clientLoggedIn) {
-			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
+			this.sendMessageToClient("-Please Login first");
 			return;
 		}
 		String storeSpec = messageFromClient.substring(5,8).trim().toUpperCase();//
