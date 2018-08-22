@@ -467,7 +467,7 @@ public class Server {
 		File[] listOfFiles = folder.listFiles();
 		
 		String messageToSend = "+"+directory+"\r\n";
-		if (listType.equals("F")) {//if list type is F, then return a list of just file names in the current directory
+		if (listType.equals("F")) {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (listOfFiles[i].isFile()) {
 					messageToSend += listOfFiles[i].getName();
@@ -475,12 +475,12 @@ public class Server {
 				} 
 			}
 			this.sendMessageToClient(messageToSend);
-		} else if (listType.equals("V")) { //if list type is V, then return a list of file names and details in current directory
+		} else if (listType.equals("V")) {
 			for (int i = 0; i < listOfFiles.length; i++) {
 				if (listOfFiles[i].isFile()) {
 					LocalDateTime date = LocalDateTime.ofInstant(
 					        Instant.ofEpochMilli(listOfFiles[i].lastModified()), ZoneId.systemDefault()
-					);	//get last modified date of file in readable form				
+					);					
 					messageToSend += listOfFiles[i].getName() + "  ";
 					messageToSend += "Size: " + Long.toString(listOfFiles[i].length()) + " bytes  ";
 					messageToSend += "Last Modified: "+date+"  ";
@@ -510,19 +510,19 @@ public class Server {
 		String directory = messageFromClient.substring(5).trim();
 		File f = new File(directory);
 		if(!f.isDirectory()) {
-			this.sendMessageToClient("-Can’t connect to directory because: invalid file directory");//abort command if invalid directory specified
+			this.sendMessageToClient("-Can’t connect to directory because: invalid file directory");
 			return;
 		}		
 		if((directory.contains(this.currentUser.get(0)))||(!userNames.parallelStream().anyMatch(directory::contains))) {
 			this.currentDirectory = directory;
-			this.sendMessageToClient("!Changed working dir to "+ directory);//change directory if the current logged in user has credentials to access the directory
-		} else if (userNames.parallelStream().anyMatch(directory::contains)) {//else if you are trying to access the directory of another user, then you need to provide credentials
-			Optional<String> match = userNames.parallelStream().filter(directory::contains).findAny();//get the user name of the user who's folder you are trying to access			
+			this.sendMessageToClient("!Changed working dir to "+ directory);
+		} else if (userNames.parallelStream().anyMatch(directory::contains)) {
+			Optional<String> match = userNames.parallelStream().filter(directory::contains).findAny();			
 			List<String> currUser = this.currentUser;
 			List<String> tempUser = null;
 			for (List<String> user : userList) {
 				if((match.isPresent())&&(user.get(0).trim().equals(match.get()))) {
-					tempUser = user;//temporarily set the current user to the user of the folder you are trying to access
+					tempUser = user;
 					break;
 				}
 			}
@@ -536,7 +536,7 @@ public class Server {
 				
 				this.minusSent = false;
 				while(true) {
-					String receivedMessage = this.receiveMessageFromClient();//wait for ACCT and PASS commands from the client so that they can get verified and access the folder
+					String receivedMessage = this.receiveMessageFromClient();
 					System.out.println(receivedMessage);
 					this.cdirActive = true;
 					if(receivedMessage.length() > 3) {
@@ -561,11 +561,11 @@ public class Server {
 					if(this.clientLoggedIn) {
 						this.currentDirectory = directory;
 						this.minusSent = false;
-						this.sendMessageToClient("!Changed working dir to "+ directory); //if verification successful, change current directory
+						this.sendMessageToClient("!Changed working dir to "+ directory);
 						break;
 					}
 					if (this.minusSent) {
-						this.minusSent = false;//abort this command if '-' sent by server
+						this.minusSent = false;
 						break;
 					}
 				}
@@ -576,7 +576,7 @@ public class Server {
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;	
 			} finally {
-				this.currentUser = currUser;//once verification is done/ aborted, set the current user back to the logged in user 
+				this.currentUser = currUser;
 				this.clientLoggedIn= true;	
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;
@@ -598,7 +598,7 @@ public class Server {
 		String fileName = messageFromClient.substring(5).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
 		File f = new File(filePath);
-		if(f.exists()&&f.isFile()) {//delete the specified file if it exists
+		if(f.exists()&&f.isFile()) {
 			f.delete();
 			this.sendMessageToClient("+"+fileName+ " deleted");
 		} else {
@@ -618,13 +618,13 @@ public class Server {
 			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
 			return;
 		}
-		String fileName = messageFromClient.substring(5).trim();//extract name of file to rename
+		String fileName = messageFromClient.substring(5).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
 		File f = new File(filePath);
-		if(f.exists()&&f.isFile()) {//if file exists, proceed, otherwise abort NAME 
+		if(f.exists()&&f.isFile()) {
 			this.sendMessageToClient("+File exists, send TOBE");			
 			
-			String receivedMessage = this.receiveMessageFromClient();//wait for TOBE
+			String receivedMessage = this.receiveMessageFromClient();
 			
 			if(receivedMessage.length() > 3) {				
 				String command = receivedMessage.substring(0, 4).toUpperCase();				
@@ -634,13 +634,13 @@ public class Server {
 					File f1 = new File(newFilePath);
 					if(f1.exists()) {
 						if(f1.isDirectory()) {
-							f.renameTo(f1);//rename file name to new name
+							f.renameTo(f1);
 							this.sendMessageToClient("+" + fileName + " renamed to " + newFileName);
 						} else {
 							this.sendMessageToClient("-File wasn’t renamed because new file name already exists in current directory");
 						}
 					} else {
-						f.renameTo(f1);//rename file name to new name
+						f.renameTo(f1);
 						this.sendMessageToClient("+" + fileName + " renamed to " + newFileName);
 					}
 				} else {
@@ -666,7 +666,7 @@ public class Server {
 		
 		this.sendMessageToClient("+localhost connection closing");
 		try {
-			this.localConnectionSocket.close();//close connection
+			this.localConnectionSocket.close();
 		} catch (IOException e) {
 			System.out.println("Connection closed");
 		}
@@ -688,10 +688,10 @@ public class Server {
 		String fileName = messageFromClient.substring(5).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
 		File f = new File(filePath);
-		if(f.exists()&&f.isFile()) {//if file is valid,proceed, otherwise abort
-			this.sendMessageToClient(Long.toString(f.length())); //send file size back to client
+		if(f.exists()&&f.isFile()) {
+			this.sendMessageToClient(Long.toString(f.length()));
 			
-			String receivedMessage = this.receiveMessageFromClient();//wait for SEND or STOP from client
+			String receivedMessage = this.receiveMessageFromClient();
 			if(receivedMessage.length() > 3) {
 				String command = receivedMessage.substring(0, 4).toUpperCase();
 				switch(command) {
@@ -728,13 +728,12 @@ public class Server {
 			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
 			return;
 		}
-		String storeSpec = messageFromClient.substring(5,8).trim().toUpperCase();//either NEW, OLD or APP
-		String fileName = messageFromClient.substring(9).trim();//extract file name
+		String storeSpec = messageFromClient.substring(5,8).trim().toUpperCase();//
+		String fileName = messageFromClient.substring(9).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
 		File f = new File(filePath);
 		File dir = new File(this.currentDirectory);
 		long availableFolderSpace = dir.getUsableSpace();
-		//send appropriate message to client depending on file write mode and whether file name already exists in current directory
 		if (storeSpec.equals("NEW")) {
 			if(f.exists()&&f.isFile()) {
 				this.sendMessageToClient("+File exists, will create new generation of file");
@@ -757,12 +756,12 @@ public class Server {
 			this.sendMessageToClient("-Invalid file parameters, STOR command sequence aborted");
 			return;
 		}
-		String sizeMessage = this.receiveMessageFromClient();//extract size of file
+		String sizeMessage = this.receiveMessageFromClient();
 		if (sizeMessage.substring(0,4).toUpperCase().equals("SIZE")) {
 			long fileSize =  Long.parseLong(sizeMessage.substring(5).trim());
-			if (fileSize < availableFolderSpace) {//check if enough space in our directory to store file
+			if (fileSize < availableFolderSpace) {
 				this.sendMessageToClient("+ok, waiting for file");
-				this.receiveFileFromClient(fileName, fileSize, storeSpec);//receive and store file from client
+				this.receiveFileFromClient(fileName, fileSize, storeSpec);
 			} else {
 				this.sendMessageToClient("-Not enough room, don’t send it, STOR sequence aborted");
 				return;

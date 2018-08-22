@@ -618,13 +618,13 @@ public class Server {
 			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
 			return;
 		}
-		String fileName = messageFromClient.substring(5).trim();//extract name of file to rename
+		String fileName = messageFromClient.substring(5).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
 		File f = new File(filePath);
-		if(f.exists()&&f.isFile()) {//if file exists, proceed, otherwise abort NAME 
+		if(f.exists()&&f.isFile()) {
 			this.sendMessageToClient("+File exists, send TOBE");			
 			
-			String receivedMessage = this.receiveMessageFromClient();//wait for TOBE
+			String receivedMessage = this.receiveMessageFromClient();
 			
 			if(receivedMessage.length() > 3) {				
 				String command = receivedMessage.substring(0, 4).toUpperCase();				
@@ -634,13 +634,13 @@ public class Server {
 					File f1 = new File(newFilePath);
 					if(f1.exists()) {
 						if(f1.isDirectory()) {
-							f.renameTo(f1);//rename file name to new name
+							f.renameTo(f1);
 							this.sendMessageToClient("+" + fileName + " renamed to " + newFileName);
 						} else {
 							this.sendMessageToClient("-File wasn’t renamed because new file name already exists in current directory");
 						}
 					} else {
-						f.renameTo(f1);//rename file name to new name
+						f.renameTo(f1);
 						this.sendMessageToClient("+" + fileName + " renamed to " + newFileName);
 					}
 				} else {
@@ -666,7 +666,7 @@ public class Server {
 		
 		this.sendMessageToClient("+localhost connection closing");
 		try {
-			this.localConnectionSocket.close();//close connection
+			this.localConnectionSocket.close();
 		} catch (IOException e) {
 			System.out.println("Connection closed");
 		}
@@ -688,10 +688,10 @@ public class Server {
 		String fileName = messageFromClient.substring(5).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
 		File f = new File(filePath);
-		if(f.exists()&&f.isFile()) {//if file is valid,proceed, otherwise abort
-			this.sendMessageToClient(Long.toString(f.length())); //send file size back to client
+		if(f.exists()&&f.isFile()) {
+			this.sendMessageToClient(Long.toString(f.length()));
 			
-			String receivedMessage = this.receiveMessageFromClient();//wait for SEND or STOP from client
+			String receivedMessage = this.receiveMessageFromClient();
 			if(receivedMessage.length() > 3) {
 				String command = receivedMessage.substring(0, 4).toUpperCase();
 				switch(command) {
@@ -728,13 +728,12 @@ public class Server {
 			this.sendMessageToClient("-Please Login first");//if not logged in abort this command
 			return;
 		}
-		String storeSpec = messageFromClient.substring(5,8).trim().toUpperCase();//either NEW, OLD or APP
-		String fileName = messageFromClient.substring(9).trim();//extract file name
+		String storeSpec = messageFromClient.substring(5,8).trim().toUpperCase();//
+		String fileName = messageFromClient.substring(9).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
 		File f = new File(filePath);
 		File dir = new File(this.currentDirectory);
 		long availableFolderSpace = dir.getUsableSpace();
-		//send appropriate message to client depending on file write mode and whether file name already exists in current directory
 		if (storeSpec.equals("NEW")) {
 			if(f.exists()&&f.isFile()) {
 				this.sendMessageToClient("+File exists, will create new generation of file");
@@ -757,12 +756,12 @@ public class Server {
 			this.sendMessageToClient("-Invalid file parameters, STOR command sequence aborted");
 			return;
 		}
-		String sizeMessage = this.receiveMessageFromClient();//extract size of file
+		String sizeMessage = this.receiveMessageFromClient();
 		if (sizeMessage.substring(0,4).toUpperCase().equals("SIZE")) {
 			long fileSize =  Long.parseLong(sizeMessage.substring(5).trim());
-			if (fileSize < availableFolderSpace) {//check if enough space in our directory to store file
+			if (fileSize < availableFolderSpace) {
 				this.sendMessageToClient("+ok, waiting for file");
-				this.receiveFileFromClient(fileName, fileSize, storeSpec);//receive and store file from client
+				this.receiveFileFromClient(fileName, fileSize, storeSpec);
 			} else {
 				this.sendMessageToClient("-Not enough room, don’t send it, STOR sequence aborted");
 				return;

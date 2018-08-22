@@ -78,8 +78,12 @@ public class Client {
 		try { 
 			fileSize = Long.parseLong(messageFromServer); 	//determine file size of the file to be retrieved from server
 			System.out.println("FROM SERVER: " + messageFromServer);
-			
-			File dir = new File(this.currentDirectory);
+	    } catch(NumberFormatException e) { 
+	    	System.out.println("FROM SERVER: " + messageFromServer);
+	    } catch(NullPointerException e) {
+	    	System.out.println("FROM SERVER: " + messageFromServer);
+	    }finally {
+	    	File dir = new File(this.currentDirectory);
 			long availableFolderSpace = dir.getUsableSpace();
 			if (fileSize < availableFolderSpace) {//determine if we have enough space to store the file locally
 				System.out.println("TO SERVER: SEND");
@@ -92,11 +96,6 @@ public class Client {
 				messageFromServer = this.receiveMessageFromServer();
 				System.out.println("FROM SERVER: " + messageFromServer);
 			}
-			
-	    } catch(NumberFormatException e) { 
-	    	System.out.println("FROM SERVER: " + messageFromServer);
-	    } catch(NullPointerException e) {
-	    	System.out.println("FROM SERVER: " + messageFromServer);
 	    }
 	}
 	/**
