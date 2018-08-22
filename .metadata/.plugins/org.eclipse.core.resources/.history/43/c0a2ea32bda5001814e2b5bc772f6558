@@ -205,11 +205,18 @@ public class Server {
 		String receivedClientMessage; 
 		String messageToClient; 
 		
-		while(true) { 	        
+		while(true) { 
+		    
+	        //Socket connectionSocket = welcomeSocket.accept(); 
+		    
+		    //BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
+		    
+		    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		    
 		    receivedClientMessage = this.receiveMessageFromClient();
-		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 		    
+		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 
 		    
+		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
 		    try {
 		    	this.processIncomingMessage(receivedClientMessage.trim());
 		    }catch (Exception e) {
@@ -329,7 +336,7 @@ public class Server {
 				}				
 				this.clientAccountValidated = true;
 			} else {
-				this.sendMessageToClient("-Invalid account");
+				this.sendMessageToClient("-Invalid account, try again");
 				//this.clientAccountValidated = false;
 			}			
 		} else {
@@ -369,7 +376,7 @@ public class Server {
 				}				
 				this.clientPasswordValidated = true;
 			} else {
-				this.sendMessageToClient("-Wrong password");
+				this.sendMessageToClient("-Wrong password, try again");
 				//this.clientPasswordValidated = false;
 			}			
 		} else {
@@ -465,11 +472,11 @@ public class Server {
 			this.sendMessageToClient("!Changed working dir to "+ directory);
 		} else if (userNames.parallelStream().anyMatch(directory::contains)) {
 			Optional<String> match = userNames.parallelStream().filter(directory::contains).findAny();
-			System.out.println("test"+match);
+			System.out.println("test "+match);
 			List<String> currUser = this.currentUser;
 			List<String> tempUser = null;
 			for (List<String> user : userList) {
-				if((match.isPresent())&&(user.get(0).trim().equals(match.get()))) {
+				if(user.get(0).trim().equals(match)) {
 					tempUser = user;
 					break;
 				}

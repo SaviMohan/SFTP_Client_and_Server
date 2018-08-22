@@ -205,11 +205,18 @@ public class Server {
 		String receivedClientMessage; 
 		String messageToClient; 
 		
-		while(true) { 	        
+		while(true) { 
+		    
+	        //Socket connectionSocket = welcomeSocket.accept(); 
+		    
+		    //BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
+		    
+		    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		    
 		    receivedClientMessage = this.receiveMessageFromClient();
-		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 		    
+		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 
 		    
+		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
 		    try {
 		    	this.processIncomingMessage(receivedClientMessage.trim());
 		    }catch (Exception e) {

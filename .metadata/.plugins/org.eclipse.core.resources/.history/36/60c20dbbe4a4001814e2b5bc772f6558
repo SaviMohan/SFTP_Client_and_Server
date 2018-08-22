@@ -115,15 +115,16 @@ public class Server {
 	            fileLines += (fileLine + "\r\n");
 	        }
 	        fr.close();
-	        br.close();			
+	        br.close();
+			
 			
 			in = new ByteArrayInputStream(fileLines.getBytes(StandardCharsets.US_ASCII));
 		} else {
 			in = new FileInputStream(fileToSend);			
 		}
 		int count;
-		byte[] buffer = new byte[1]; 
-		while ((count = in.read(buffer)) > -1)
+		byte[] buffer = new byte[8192]; 
+		while ((count = in.read(buffer)) > 0)
 		{
 			this.outToClient.write(buffer, 0, count);
 		}
@@ -205,16 +206,23 @@ public class Server {
 		String receivedClientMessage; 
 		String messageToClient; 
 		
-		while(true) { 	        
+		while(true) { 
+		    
+	        //Socket connectionSocket = welcomeSocket.accept(); 
+		    
+		    //BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream())); 
+		    
+		    //DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream()); 
 		    
 		    receivedClientMessage = this.receiveMessageFromClient();
-		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 		    
+		    System.out.println("FROM CLIENT: " + receivedClientMessage.trim()); 
 		    
-		    try {
+		    //messageToClient = receivedClientMessage.toUpperCase() + '\n'; 
+		    //try {
 		    	this.processIncomingMessage(receivedClientMessage.trim());
-		    }catch (Exception e) {
-		    	this.sendMessageToClient("-Error processing your message");
-		    }		    
+		    //}catch (IOException e) {
+		    	//tcpServer.sendMessageToClient("-Error processing your message");
+		    //}		    
 		    
 		    //tcpServer.outToClient.writeBytes(messageToClient); 
 		    ////this.sendMessageToClient(messageToClient);
@@ -271,7 +279,7 @@ public class Server {
 	}
 	
 	private void cmdUSER(String messageFromClient) {
-		String userid = messageFromClient.substring(5).trim();
+		String userid = messageFromClient.substring(5).trim();//need to account for strings of length 4
 		System.out.println(userid);
 		for (List<String> user : userList) {
 			System.out.println(user.get(0));
@@ -280,10 +288,7 @@ public class Server {
 		    		this.sendMessageToClient("!"+userid+" logged in");
 		    		this.clientLoggedIn =true;		    			    		
 		    	} else {
-		    		this.sendMessageToClient("+User-id valid, send account and/or password");	
-		    		this.clientLoggedIn = false;
-		    		this.clientAccountValidated = false;
-					this.clientPasswordValidated = false;	
+		    		this.sendMessageToClient("+User-id valid, send account and/or password");		    		
 		    	}
 		    	this.currentUser= user;
 		    	return;
@@ -293,13 +298,9 @@ public class Server {
 	}
 	
 	private void cmdACCT(String messageFromClient) {
-		String account = messageFromClient.substring(5).trim();
-		System.out.println(account);
-		System.out.println(!this.currentUser.get(0).equals(""));
+		String account = messageFromClient.substring(5).trim();//
 		if (!this.currentUser.get(0).equals("")) {
-			System.out.println("test1");
 			if(this.currentUser.get(1).equals("") && this.currentUser.get(2).equals("")) {
-				System.out.println("test2");
 				this.sendMessageToClient("!Account valid, logged-in");
 				this.clientLoggedIn= true;	
 				this.clientAccountValidated = true;
@@ -308,7 +309,6 @@ public class Server {
 				if (this.clientPasswordValidated) {
 					this.sendMessageToClient("!Account valid, logged-in");
 					this.clientLoggedIn =true;
-					System.out.println("test3");
 				} else {
 					this.sendMessageToClient("+Account valid, send password");
 				}				
@@ -318,29 +318,25 @@ public class Server {
 				this.clientLoggedIn =true;
 				this.clientAccountValidated = true;
 				this.clientPasswordValidated = true;	
-				System.out.println("test4");
 			} else if (this.currentUser.get(1).equals(account) && !this.currentUser.get(2).equals("")) {
 				if (this.clientPasswordValidated) {
 					this.sendMessageToClient("!Account valid, logged-in");
 					this.clientLoggedIn =true;
-					System.out.println("test5");
 				} else {
 					this.sendMessageToClient("+Account valid, send password");
 				}				
 				this.clientAccountValidated = true;
 			} else {
-				this.sendMessageToClient("-Invalid account");
+				this.sendMessageToClient("-Invalid account, try again");
 				//this.clientAccountValidated = false;
 			}			
 		} else {
-			System.out.println("tst");
 			this.sendMessageToClient("-Please enter userID first");
 		}
-		System.out.println("testing");
 	}
 	
 	private void cmdPASS(String messageFromClient) {
-		String password = messageFromClient.substring(5).trim();
+		String password = messageFromClient.substring(5).trim();//
 		if (!this.currentUser.get(0).equals("")) {
 			if(this.currentUser.get(1).equals("") && this.currentUser.get(2).equals("")) {
 				this.sendMessageToClient("!Password valid, logged-in");
@@ -369,7 +365,7 @@ public class Server {
 				}				
 				this.clientPasswordValidated = true;
 			} else {
-				this.sendMessageToClient("-Wrong password");
+				this.sendMessageToClient("-Wrong password, try again");
 				//this.clientPasswordValidated = false;
 			}			
 		} else {
@@ -383,7 +379,7 @@ public class Server {
 			return;
 		}
 		//message + "      ".trim()
-		String type = messageFromClient.substring(5).trim().toUpperCase();
+		String type = messageFromClient.substring(5).trim().toUpperCase();//
 		if (type.equals("A")) {
 			this.sendMessageToClient("+Using Ascii mode");
 			this.mappingType = "A";
@@ -403,10 +399,10 @@ public class Server {
 			this.sendMessageToClient("-Please Login first");
 			return;
 		}
-		String listType = messageFromClient.substring(5,6).trim().toUpperCase();
+		String listType = messageFromClient.substring(5,6).trim().toUpperCase();//
 		String directory = "";
 		if (messageFromClient.length()>6) {
-			directory = messageFromClient.substring(7).trim();
+			directory = messageFromClient.substring(7).trim();//
 			
 			File f = new File(directory);
 			if(!f.isDirectory()) {
@@ -454,7 +450,7 @@ public class Server {
 			return;
 		}
 		
-		String directory = messageFromClient.substring(5).trim();
+		String directory = messageFromClient.substring(5).trim();//
 		File f = new File(directory);
 		if(!f.isDirectory()) {
 			this.sendMessageToClient("-Can’t connect to directory because: invalid file directory");
@@ -465,11 +461,10 @@ public class Server {
 			this.sendMessageToClient("!Changed working dir to "+ directory);
 		} else if (userNames.parallelStream().anyMatch(directory::contains)) {
 			Optional<String> match = userNames.parallelStream().filter(directory::contains).findAny();
-			System.out.println("test"+match);
 			List<String> currUser = this.currentUser;
 			List<String> tempUser = null;
 			for (List<String> user : userList) {
-				if((match.isPresent())&&(user.get(0).trim().equals(match.get()))) {
+				if(user.get(0).trim().equals(match)) {
 					tempUser = user;
 					break;
 				}
@@ -485,10 +480,9 @@ public class Server {
 				this.minusSent = false;
 				while(true) {
 					String receivedMessage = this.receiveMessageFromClient();
-					System.out.println(receivedMessage);
 					this.cdirActive = true;
 					if(receivedMessage.length() > 3) {
-						String command = receivedMessage.trim().substring(0, 4).toUpperCase();
+						String command = messageFromClient.substring(0, 4).toUpperCase();
 						switch(command) {
 						case "ACCT":
 							this.cmdACCT(receivedMessage);
@@ -497,7 +491,7 @@ public class Server {
 							this.cmdPASS(receivedMessage);
 							break;
 						default:
-							this.sendMessageToClient("-Error: command not recognized");							
+							this.sendMessageToClient("- Error: command not recognized");							
 						}
 					} else {
 						this.sendMessageToClient("- Error: command not recognized");
@@ -506,7 +500,6 @@ public class Server {
 						break;
 					}
 					this.cdirActive = false;
-					System.out.println(this.clientLoggedIn);
 					if(this.clientLoggedIn) {
 						this.currentDirectory = directory;
 						this.minusSent = false;
@@ -700,7 +693,9 @@ public class Server {
 	while(true) {
 		
 		Socket connectionSocket = welcomeSocket.accept();
-		Server tcpServer = new Server(connectionSocket);		
+		Server tcpServer = new Server(connectionSocket);
+		////
+		////
 			
 	}
 	

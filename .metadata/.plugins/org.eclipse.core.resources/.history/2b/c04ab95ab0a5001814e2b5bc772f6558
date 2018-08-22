@@ -81,12 +81,12 @@ public class Client {
 	    	File dir = new File(this.currentDirectory);
 			long availableFolderSpace = dir.getUsableSpace();
 			if (fileSize < availableFolderSpace) {
-				System.out.println("TO SERVER: SEND");
+				System.out.println("TO CLIENT: SEND");
 				this.sendMessageToServer("SEND"); 
 				this.receiveFileFromServer(fileName, fileSize, "NEW");
 				System.out.println("FILE RECEIVED");
 			} else {
-				System.out.println("TO SERVER: STOP");
+				System.out.println("TO CLIENT: STOP");
 				this.sendMessageToServer("STOP"); 
 				messageFromServer = this.receiveMessageFromServer();
 				System.out.println("FROM SERVER: " + messageFromServer);
@@ -98,7 +98,7 @@ public class Client {
 		
 		String fileName = (messagetoServer+"          ").substring(9).trim();//
 		String filePath = this.currentDirectory + "/" + fileName;
-		System.out.println(messagetoServer);
+		System.out.println(messagetoServer);////
 		File f = new File(filePath);
 		if(f.exists()&&f.isFile()) {
 			this.sendMessageToServer(messagetoServer); 
@@ -129,8 +129,7 @@ public class Client {
 		this.sendMessageToServer(messagetoServer); 
 		String messageFromServer = this.receiveMessageFromServer();
 		System.out.println("FROM SERVER: " + messageFromServer); 
-		if(messageFromServer.contains("+localhost connection closing")) {
-			System.out.println("Client side connection closed");
+		if(messageFromServer.equals("+localhost connection closing")) {
 			this.localConnectionSocket.close();
 		}
 		
@@ -204,7 +203,7 @@ public class Client {
 			File f = new File(filePath);
 			
 			while(f.exists()&&f.isFile()) {
-				fileName = "n_" + fileName;
+				fileName += "1";
 				filePath = this.currentDirectory + "/" + fileName;
 				f = new File(filePath);
 			}

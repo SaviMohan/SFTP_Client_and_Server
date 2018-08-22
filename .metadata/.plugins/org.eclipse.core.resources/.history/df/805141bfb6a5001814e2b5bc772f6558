@@ -204,7 +204,7 @@ public class Client {
 			File f = new File(filePath);
 			
 			while(f.exists()&&f.isFile()) {
-				fileName = "n_" + fileName;
+				fileName += "1";
 				filePath = this.currentDirectory + "/" + fileName;
 				f = new File(filePath);
 			}
