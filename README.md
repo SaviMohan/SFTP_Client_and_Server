@@ -1,5 +1,5 @@
 # SFTP_Client_and_Server
-README for cs725 Assignment 1
+README 
 
 ***********HOW THE CODE WORKS*******************************************************************************************
 The code consists of two classes, Client.java and Server.java, which are resposible for client side and server side functionality
