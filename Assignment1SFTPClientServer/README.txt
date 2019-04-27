@@ -1,4 +1,4 @@
-NAME: Saviduruu Mohan	UPI:smoh944	ID: 860579101
+NAME: Savi Mohan	
 README for cs725 Assignment 1
 
 ***********HOW THE CODE WORKS*******************************************************************************************
@@ -29,7 +29,7 @@ IMPORTANT: In the test cases, the lines that start with "CLIENT:" represent the 
 Although when typing in a line only type in whats specified inside the speech "" marks 
 All other lines are produced by the program.
 
-!!!!!!!!!!!!!!!!!!!!close server side first followed by client size when done with testin!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!close server side first followed by client size when done with testing!!!!!!!!!!!!!!!!!
 
 
 ****ALL 11 RFC913 COMMANDS HAVE BEEN IMPLEMENTED********************************************************************************************
